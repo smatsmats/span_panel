@@ -40,9 +40,9 @@ def make_request(method, url, payload=None):
     global calls
 
     # might need this in the future
-#    token_string = "Bearer " + acct_info[account]['token']
-#    headers = {'authorization': token_string,
-#               'content-type': "application/json"}
+    # token_string = "Bearer " + acct_info[account]['token']
+    # headers = {'authorization': token_string,
+    #            'content-type': "application/json"}
     headers = {}
 
     if verbose:
@@ -64,7 +64,7 @@ def make_request(method, url, payload=None):
             response.raise_for_status()
         except HTTPError as http_err:
             print(f'HTTP error occurred: {http_err}')
-#            print(f'text: {response.text}')
+            # print(f'text: {response.text}')
             if response.status_code == 401:
                 sys.exit()
         except Exception as err:
@@ -135,6 +135,14 @@ class Panel:
     def panel_instantgridpowerw(self):
         p = self.get_panel()
         return(p['instantGridPowerW'])
+
+    def get_branches(self):
+        b_dict = {}
+        p = self.get_panel()
+        for branch in p['branches']:
+#            pp.pprint(branch) 
+            b_dict[branch['id']] = branch
+        return(b_dict)
 
 # not the branch part:
 #    'currentRunConfig': 'PANEL_ON_GRID',
@@ -232,24 +240,26 @@ def main():
     pp.pprint(on_grid)
     juice = panel.panel_instantgridpowerw()
     print(juice)
-    c = panel.get_circuits()
+#    c = panel.get_circuits()
 #    pp.pprint(c)
-    c = panel.get_circuits(circuitid='5585e4754180409a8222f69b61142469')
+#    c = panel.get_circuits(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(c)
-#    panel.list_tabs_id_mapping()
+    panel.list_tabs_id_mapping()
 #    panel.list_names_id_mapping()
-    cl = panel.list_circuits()
+#    cl = panel.list_circuits()
 #    pp.pprint(cl)
-    c = panel.get_circuit_by_tab(13)
+#    c = panel.get_circuit_by_tab(13)
 #    pp.pprint(c)
-    c = panel.get_circuit_by_name('Laundry room outlets')
+#    c = panel.get_circuit_by_name('Laundry room outlets')
 #    pp.pprint(c)
-    juice = panel.get_instantw(circuitid='5585e4754180409a8222f69b61142469')
+#    juice = panel.get_instantw(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(juice)
-    juice = panel.get_consumedenergywh(circuitid='5585e4754180409a8222f69b61142469')
+#    juice = panel.get_consumedenergywh(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(juice)
-    nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
+#    nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(nom)
+    br = panel.get_branches()
+    pp.pprint(br)
 
 
 if __name__ == "__main__":
