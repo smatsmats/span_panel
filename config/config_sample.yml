@@ -1,0 +1,39 @@
+---
+verbose: False
+
+span:
+  host: <my panel address>
+
+influxdb:
+  username: 'usernamehere'
+  password: 'usernamepassword'
+  host: 'localhost'
+  port: '8086'
+  retention_policy: 'autogen'
+  db_name: 'db_namehere'
+
+logging:
+  logger_name: "myspan2influxtoool"
+  log_config: "/usr/local/span2influxdb/config/logging.yml"
+
+graphable:
+  measurement: "graphable"
+  map:
+    temp_in:
+      current:
+        measurement: '289367'
+        data_structure_type: 'non-ISS Current Conditions Record'
+        field: 'temp_in'
+      historic:
+        measurement: '289367'
+        data_structure_type: 'non-ISS Archive Record'
+        field: 'temp_in_last'
+    hum_in:
+      current:
+        measurement: '289367'
+        data_structure_type: 'non-ISS Current Conditions Record'
+        field: 'hum_in'
+      historic:
+        measurement: '289367'
+        data_structure_type: 'non-ISS Archive Record'
+        field: 'hum_in_last'

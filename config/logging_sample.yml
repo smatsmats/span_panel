@@ -1,0 +1,57 @@
+---
+
+version: 1
+
+disable_existing_loggers: False
+
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: WARNING
+    formatter: simple
+    stream: ext://sys.stdout
+  debug_file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG            
+    formatter: simple
+    filename: /usr/local/weatherlink2influxdb/logs/debug.log
+    maxBytes: 10485760 # 10MB
+    backupCount: 5
+    encoding: utf8
+  info_file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO            
+    formatter: simple
+    filename: /usr/local/weatherlink2influxdb/logs/info.log
+    maxBytes: 10485760 # 10MB
+    backupCount: 5
+    encoding: utf8
+  error_file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR            
+    formatter: simple
+    filename: /usr/local/weatherlink2influxdb/logs/errors.log
+    maxBytes: 10485760 # 10MB
+    backupCount: 5
+    encoding: utf8
+  error_email_handler:
+    class: logging.handlers.SMTPHandler
+    level: ERROR            
+    mailhost: localhost
+    formatter: simple
+    fromaddr: <from email addr>
+    toaddrs: <email addr>
+    subject: "push2youtube errors"
+loggers:
+  simpleExample:
+    level: DEBUG
+    handlers: [console]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [console, error_email_handler, debug_file_handler]
+
+...
