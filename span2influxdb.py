@@ -128,8 +128,9 @@ def main():
     ic = influx.InfluxClient(config)
 
     # this could be a lot quicker if we called panel to get
-    # the instant consumption for all of the circuits
-    panel = span.Panel(host=config['span']['host'])
+    # the instantjconsumption for all of the circuits
+    panel = span.Panel(host=config['span']['host'], 
+                       extra_tab_pairs=config['span']['extra_tab_pairs'])
     circuit_list = panel.list_circuits()
     for circuit_id in circuit_list:
         # print(circuit_id)

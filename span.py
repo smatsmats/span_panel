@@ -82,10 +82,16 @@ def make_request(method, url, payload=None):
 
 
 class Panel:
-    def __init__(self, host):
+    def __init__(self, host, extra_tab_pairs=None):
         self.host = host
         self.api_version = 'api/v1'
         self.pop_id_mappings()
+        self.extra_tab_pairs = extra_tab_pairs
+        # the solar stuff is not included in circuts, so we have
+        # to add it ourselves
+        if self.extra_tab_pairs is not None:
+            for pair in self.extra_tab_pairs:
+                self.tab_pairs.append(pair)
 
     def get_status(self):
         method = 'GET'
@@ -140,7 +146,19 @@ class Panel:
         b_dict = {}
         p = self.get_panel()
         for branch in p['branches']:
-#            pp.pprint(branch) 
+            b_dict[branch['id']] = branch
+        return(b_dict)
+
+    def get_branches_combo(self):
+        b_dict = {}
+        p = self.get_panel()
+        for branch in p['branches']:
+            pp.pprint(branch['id'])
+            for pair in self.tab_pairs:
+                if branch['id'] in pair:
+                    print("PAIR")
+                else:
+                    print("not pair")
             b_dict[branch['id']] = branch
         return(b_dict)
 
@@ -190,11 +208,14 @@ class Panel:
         self.tabs_id_mapping = {}
         self.names_id_mapping = {}
         self.circuit_list = []
+        self.tab_pairs = []
         spaces = self.get_circuits()
         for space in spaces:
             for circuit in spaces[space]:
                 c = spaces[space][circuit]
                 self.circuit_list.append(c['id'])
+                if len(c['tabs']) > 1:
+                    self.tab_pairs.append(c['tabs'])
                 for n in c['tabs']:
                     self.tabs_id_mapping[n] = c['id']
                     self.names_id_mapping[c['name']] = c['id']
@@ -228,23 +249,27 @@ class Panel:
         circuit = self.get_circuits(circuitid=circuitid)
         return(circuit['name'])
 
+    def get_tab_pairs(self):
+        return(self.tab_pairs)
+
 
 def main():
-    panel = Panel(host='10.141.39.34')
-    panel.get_status()
-    p = panel.get_panel()
-    pp.pprint(p)
-    pf = flatten_json(p)
+    panel = Panel(host='10.141.39.34', extra_tab_pairs=[[30, 32]])
+    s = panel.get_status()
+    pp.pprint(s)
+#    p = panel.get_panel()
+#    pp.pprint(p)
+#    pf = flatten_json(p)
 #    pp.pprint(pf)
-    on_grid = panel.is_panel_on_grid()
-    pp.pprint(on_grid)
-    juice = panel.panel_instantgridpowerw()
-    print(juice)
-#    c = panel.get_circuits()
-#    pp.pprint(c)
+#    on_grid = panel.is_panel_on_grid()
+#    pp.pprint(on_grid)
+#    juice = panel.panel_instantgridpowerw()
+#    print(juice)
+    c = panel.get_circuits()
+    pp.pprint(c)
 #    c = panel.get_circuits(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(c)
-    panel.list_tabs_id_mapping()
+#    panel.list_tabs_id_mapping()
 #    panel.list_names_id_mapping()
 #    cl = panel.list_circuits()
 #    pp.pprint(cl)
@@ -258,8 +283,12 @@ def main():
 #    pp.pprint(juice)
 #    nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(nom)
+    tp = panel.get_tab_pairs()
+    pp.pprint(tp)
     br = panel.get_branches()
     pp.pprint(br)
+    br = panel.get_branches_combo()
+#    pp.pprint(br)
 
 
 if __name__ == "__main__":
