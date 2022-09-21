@@ -149,17 +149,39 @@ class Panel:
             b_dict[branch['id']] = branch
         return(b_dict)
 
+    def combine_branches(self, branch_a, branch_b):
+        branch_out = branch_a
+        for arg in ['exportedActiveEnergyWh',
+                    'importedActiveEnergyWh',
+                    'instantPowerW']:
+            branch_out[arg] = branch_a[arg] + branch_b[arg]
+        branch_out['ids'] = [branch_a['id'], branch_b['id']]
+        return(branch_out)
+
     def get_branches_combo(self):
         b_dict = {}
         p = self.get_panel()
+        # first populate brances to new dickt
         for branch in p['branches']:
             pp.pprint(branch['id'])
-            for pair in self.tab_pairs:
-                if branch['id'] in pair:
-                    print("PAIR")
-                else:
-                    print("not pair")
             b_dict[branch['id']] = branch
+        keys_to_pop = []
+        for branchid in b_dict:
+            print(branchid)
+            for pair in self.tab_pairs:
+                if branchid in pair:
+                    print("PAIR")
+                    print(pair[0])
+                    print(pair[1])
+                    a = b_dict[int(pair[0])]
+                    b = b_dict[int(pair[1])]
+                    combined = self.combine_branches(a, b)
+                    b_dict[pair[0]] = combined
+                    keys_to_pop.append(pair[1])
+        ukeys_to_pop = list(set(keys_to_pop))
+        for k in ukeys_to_pop:
+            print("will pop", k)
+            b_dict.pop(k)
         return(b_dict)
 
 # not the branch part:
@@ -287,8 +309,8 @@ def main():
     pp.pprint(tp)
     br = panel.get_branches()
     pp.pprint(br)
-    br = panel.get_branches_combo()
-#    pp.pprint(br)
+#    brc = panel.get_branches_combo()
+#    pp.pprint(brc)
 
 
 if __name__ == "__main__":
