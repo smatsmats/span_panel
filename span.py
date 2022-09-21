@@ -210,12 +210,14 @@ class Panel:
         if math.trunc(r.status_code / 100) != 2:
             print(r.status_code)
             print(r.reason)
+            return(None)
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
 
         if verbose:
             pp.pprint(r.json())
+
         return(r.json())
 
     def get_circuit_by_tab(self, tab):

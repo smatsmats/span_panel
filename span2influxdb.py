@@ -5,6 +5,7 @@ import pprint
 import time
 import json
 import math
+import sys
 from requests.exceptions import HTTPError
 
 import logging
@@ -129,7 +130,7 @@ def main():
 
     # this could be a lot quicker if we called panel to get
     # the instantjconsumption for all of the circuits
-    panel = span.Panel(host=config['span']['host'], 
+    panel = span.Panel(host=config['span']['host'],
                        extra_tab_pairs=config['span']['extra_tab_pairs'])
     circuit_list = panel.list_circuits()
     for circuit_id in circuit_list:
@@ -138,6 +139,12 @@ def main():
         # consumedenergywh = panel.get_consumedenergywh(circuitid='5585e4754180409a8222f69b61142469')
         # nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
         circuit = panel.get_circuits(circuitid=circuit_id)
+
+        if circuit is None:
+            print("error from getting circuits, bailing")
+            logger.debug("error from getting circuits, bailing")
+            sys.exit()
+
         # tabs = ' '.join(str(c) for c in circuit['tabs'])
         data2push = {}
         for arg in circuit:
@@ -159,6 +166,13 @@ def main():
 
             data2push[arg] = value
 
+            # add an extra frield for tabs as a string
+            if arg == 'tabs':
+                arg = 'tabs_str'
+                value = ','.join(value)
+
+            data2push[arg] = value
+
 # id b74f5a75fe544b07a11a50d6948568e2
 # name Disposal, kitchen outlet, front hall
 # relayState CLOSED
@@ -173,7 +187,6 @@ def main():
 # is_sheddable False
 # is_never_backup False
 
-  
         try:
             json_body = [
                 {
