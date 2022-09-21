@@ -173,22 +173,28 @@ def main():
 # is_sheddable False
 # is_never_backup False
 
-        json_body = [
-            {
-                "measurement": circuit['name'],
-                "tags": {
-                    "circuit_name": circuit['name'],
-                    "circuit_id": circuit['id'],
-                },
-                # we really should use the time from the call, but whatever
-                # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
-                "time": datetime.utcnow().isoformat(),
-                "fields": data2push
-            }
-        ]
-        logger.debug(pp.pformat(json_body))
-        logger.debug("Point Json:")
-        ic.write_points(json_body)
+  
+        try:
+            json_body = [
+                {
+                    "measurement": circuit['name'],
+                    "tags": {
+                        "circuit_name": circuit['name'],
+                        "circuit_id": circuit['id'],
+                    },
+                    # we really should use the time from the call, but whatever
+                    # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
+                    "time": datetime.utcnow().isoformat(),
+                    "fields": data2push
+                    }
+            ]
+        except KeyError:
+            print("not everything is in the circuit definition")
+            pp.pprint(circuit)
+        else:
+            logger.debug(pp.pformat(json_body))
+            logger.debug("Point Json:")
+            ic.write_points(json_body)
 
     # read panel
     data2push = {}
