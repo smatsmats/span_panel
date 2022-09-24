@@ -140,10 +140,14 @@ def main():
         # nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
         circuit = panel.get_circuits(circuitid=circuit_id)
 
+        # try twice?
         if circuit is None:
-            print("error from getting circuits, bailing")
-            logger.debug("error from getting circuits, bailing")
-            sys.exit()
+            time.sleep(5)
+            circuit = panel.get_circuits(circuitid=circuit_id)
+            if circuit is None:
+                print("error from getting circuits, bailing")
+                logger.debug("error from getting circuits, bailing")
+                sys.exit()
 
         # tabs = ' '.join(str(c) for c in circuit['tabs'])
         data2push = {}
