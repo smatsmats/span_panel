@@ -92,12 +92,18 @@ def main():
 #                        default=False,
 #                        required=False,
 #                        help='push to influxdb')
-#    parser.add_argument('--get_current',
-#                        dest='get_current',
-#                        action='store_true',
-#                        default=False,
-#                        required=False,
-#                        help='get current conditions')
+    parser.add_argument('--get_current',
+                        dest='get_current',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current conditions')
+    parser.add_argument('--do_panel',
+                        dest='do_panel',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current conditions')
     parser.add_argument('--config_file',
                         dest='config_file',
                         default='config.yml',
@@ -132,50 +138,55 @@ def main():
     # the instantjconsumption for all of the circuits
     panel = span.Panel(host=config['span']['host'],
                        extra_tab_pairs=config['span']['extra_tab_pairs'])
-    circuit_list = panel.list_circuits()
-    for circuit_id in circuit_list:
-        # print(circuit_id)
-        # instantw = panel.get_instantw(circuitid='5585e4754180409a8222f69b61142469')
-        # consumedenergywh = panel.get_consumedenergywh(circuitid='5585e4754180409a8222f69b61142469')
-        # nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
-        circuit = panel.get_circuits(circuitid=circuit_id)
 
-        # try twice?
-        if circuit is None:
-            time.sleep(5)
+#    panel.list_tabs_id_mapping()
+#    panel.list_names_id_mapping()
+
+    if args.get_current:
+        circuit_list = panel.list_circuits()
+        for circuit_id in circuit_list:
+            # print(circuit_id)
+            # instantw = panel.get_instantw(circuitid='5585e4754180409a8222f69b61142469')
+            # consumedenergywh = panel.get_consumedenergywh(circuitid='5585e4754180409a8222f69b61142469')
+            # nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
             circuit = panel.get_circuits(circuitid=circuit_id)
+
+            # try twice?
             if circuit is None:
-                print("error from getting circuits, bailing")
-                logger.debug("error from getting circuits, bailing")
-                sys.exit()
+                time.sleep(5)
+                circuit = panel.get_circuits(circuitid=circuit_id)
+                if circuit is None:
+                    print("error from getting circuits, bailing")
+                    logger.debug("error from getting circuits, bailing")
+                    sys.exit()
 
-        # tabs = ' '.join(str(c) for c in circuit['tabs'])
-        data2push = {}
-        for arg in circuit:
-            value = circuit[arg]
-            if arg in ['id',
-                       'name',
-                       'is_user_controllable',
-                       'priority',
-                       'is_sheddable',
-                       'is_never_backup',
-                       'tabs']:
-                continue
+            # tabs = ' '.join(str(c) for c in circuit['tabs'])
+            data2push = {}
+            for arg in circuit:
+                value = circuit[arg]
+                if arg in ['id',
+                           'name',
+                           'is_user_controllable',
+                           'priority',
+                           'is_sheddable',
+                           'is_never_backup',
+                           'tabs']:
+                    continue
 
-            # some stupid conversions
-            if arg == 'relayState':
-                value = relay_state_map[value]
-            if arg == 'instantPowerW':
-                value = - value
+                # some stupid conversions
+                if arg == 'relayState':
+                    value = relay_state_map[value]
+                if arg == 'instantPowerW':
+                    value = - value
 
-            data2push[arg] = value
+                data2push[arg] = value
 
-            # add an extra frield for tabs as a string
-            if arg == 'tabs':
-                arg = 'tabs_str'
-                value = ','.join(value)
+                # add an extra frield for tabs as a string
+                if arg == 'tabs':
+                    arg = 'tabs_str'
+                    value = ','.join(value)
 
-            data2push[arg] = value
+                data2push[arg] = value
 
 # id b74f5a75fe544b07a11a50d6948568e2
 # name Disposal, kitchen outlet, front hall
@@ -191,87 +202,88 @@ def main():
 # is_sheddable False
 # is_never_backup False
 
-        try:
-            json_body = [
-                {
-                    "measurement": circuit['name'],
-                    "tags": {
-                        "circuit_name": circuit['name'],
-                        "circuit_id": circuit['id'],
-                    },
-                    # we really should use the time from the call, but whatever
-                    # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
-                    "time": datetime.utcnow().isoformat(),
-                    "fields": data2push
-                    }
-            ]
-        except KeyError:
-            print("not everything is in the circuit definition")
-            pp.pprint(circuit)
-        else:
-            logger.debug(pp.pformat(json_body))
-            logger.debug("Point Json:")
-            ic.write_points(json_body)
-
-    # read panel
-    data2push = {}
-    panel_dict = panel.get_panel()
-    for panelarg in panel_dict:
-
-        # for now skip branches
-        if panelarg == 'branches':
-            continue
-        value = panel_dict[panelarg]
-
-        if panelarg == 'feedthroughEnergy' or panelarg == 'mainMeterEnergy':
-            panelarg_save = panelarg
-            for conpro in panel_dict[panelarg_save]:
-                value = panel_dict[panelarg_save][conpro]
-                panelarg = '{}_{}'.format(panelarg_save, conpro)
-                data2push[panelarg] = value
-        elif panelarg == 'mainRelayState':
-            if panel_dict[panelarg] == 'CLOSED':
-                value = True
+            try:
+                json_body = [
+                    {
+                        "measurement": circuit['name'],
+                        "tags": {
+                            "circuit_name": circuit['name'],
+                            "circuit_id": circuit['id'],
+                        },
+                        # we really should use the time from the call, but whatever
+                        # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
+                        "time": datetime.utcnow().isoformat(),
+                        "fields": data2push
+                        }
+                ]
+            except KeyError:
+                print("not everything is in the circuit definition")
+                pp.pprint(circuit)
             else:
-                value = False
-            panelarg = 'mainRelayState_bool'
-        elif panelarg == 'currentRunConfig':
-            if panel_dict[panelarg] == 'PANEL_ON_GRID':
-                value = True
-            else:
-                value = False
-            panelarg = 'currentRunConfig_bool'
-        elif panelarg == 'dsmGridState':
-            if panel_dict[panelarg] == 'DSM_GRID_UP':
-                value = True
-            else:
-                value = False
-            panelarg = 'dsmGridState_bool'
-        elif panelarg == 'dsmState':
-            if panel_dict[panelarg] == 'DSM_ON_GRID':
-                value = True
-            else:
-                value = False
-            panelarg = 'dsmState_bool'
+                logger.debug(pp.pformat(json_body))
+                logger.debug("Point Json:")
+                ic.write_points(json_body)
 
-        data2push[panelarg] = value
+    if args.do_panel:
+        # read panel
+        data2push = {}
+        panel_dict = panel.get_panel()
+        for panelarg in panel_dict:
 
-    json_body = [
-        {
-            "measurement": 'panel',
-            "tags": {
-                # "circuit_name": circuit['name'],
-                # "circuit_id": circuit['id'],
-            },
-            # we really should use the time from the call, but whatever
-            # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
-            "time": datetime.utcnow().isoformat(),
-            "fields": data2push
-        }
-    ]
-    logger.debug(pp.pformat(json_body))
-    logger.debug("Point Json:")
-    ic.write_points(json_body)
+            # for now skip branches
+            if panelarg == 'branches':
+                continue
+            value = panel_dict[panelarg]
+
+            if panelarg == 'feedthroughEnergy' or panelarg == 'mainMeterEnergy':
+                panelarg_save = panelarg
+                for conpro in panel_dict[panelarg_save]:
+                    value = panel_dict[panelarg_save][conpro]
+                    panelarg = '{}_{}'.format(panelarg_save, conpro)
+                    data2push[panelarg] = value
+            elif panelarg == 'mainRelayState':
+                if panel_dict[panelarg] == 'CLOSED':
+                    value = True
+                else:
+                    value = False
+                panelarg = 'mainRelayState_bool'
+            elif panelarg == 'currentRunConfig':
+                if panel_dict[panelarg] == 'PANEL_ON_GRID':
+                    value = True
+                else:
+                    value = False
+                panelarg = 'currentRunConfig_bool'
+            elif panelarg == 'dsmGridState':
+                if panel_dict[panelarg] == 'DSM_GRID_UP':
+                    value = True
+                else:
+                    value = False
+                panelarg = 'dsmGridState_bool'
+            elif panelarg == 'dsmState':
+                if panel_dict[panelarg] == 'DSM_ON_GRID':
+                    value = True
+                else:
+                    value = False
+                panelarg = 'dsmState_bool'
+
+            data2push[panelarg] = value
+
+        json_body = [
+            {
+                "measurement": 'panel',
+                "tags": {
+                    # "circuit_name": circuit['name'],
+                    # "circuit_id": circuit['id'],
+                },
+                # we really should use the time from the call, but whatever
+                # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
+                "time": datetime.utcnow().isoformat(),
+                "fields": data2push
+            }
+        ]
+        logger.debug(pp.pformat(json_body))
+        logger.debug("Point Json:")
+        ic.write_points(json_body)
 
 
 if __name__ == "__main__":
