@@ -231,6 +231,7 @@ class Panel:
     def pop_id_mappings(self):
         self.tabs_id_mapping = {}
         self.names_id_mapping = {}
+        self.tab_names_mapping = {}
         self.circuit_list = []
         self.tab_pairs = []
         spaces = self.get_circuits()
@@ -238,8 +239,11 @@ class Panel:
             for circuit in spaces[space]:
                 c = spaces[space][circuit]
                 self.circuit_list.append(c['id'])
+                tab_string = ','.join(str(c) for c in c['tabs'])
+                self.tab_names_mapping[tab_string] = c['id']
                 if len(c['tabs']) > 1:
                     self.tab_pairs.append(c['tabs'])
+                    tab_string = ','.join(str(c) for c in c['tabs'])
                 for n in c['tabs']:
                     self.tabs_id_mapping[n] = c['id']
                     self.names_id_mapping[c['name']] = c['id']
@@ -257,6 +261,13 @@ class Panel:
 
     def get_names_id_mapping(self):
         return(self.names_id_mapping)
+
+    def list_tab_names_mapping(self):
+        for str_tab in self.tab_names_mapping:
+            print(str_tab, '--', self.tab_names_mapping[str_tab])
+
+    def get_tab_names_mapping(self):
+        return(self.tab_names_mapping)
 
     def list_circuits(self):
         return(self.circuit_list)

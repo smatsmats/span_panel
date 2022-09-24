@@ -104,6 +104,24 @@ def main():
                         default=False,
                         required=False,
                         help='get current conditions')
+    parser.add_argument('--list_tabs_id_mapping',
+                        dest='list_tabs_id_mapping',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current conditions')
+    parser.add_argument('--list_names_id_mapping',
+                        dest='list_names_id_mapping',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current conditions')
+    parser.add_argument('--list_tab_names_mapping',
+                        dest='list_tab_names_mapping',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current conditions')
     parser.add_argument('--config_file',
                         dest='config_file',
                         default='config.yml',
@@ -139,8 +157,14 @@ def main():
     panel = span.Panel(host=config['span']['host'],
                        extra_tab_pairs=config['span']['extra_tab_pairs'])
 
-#    panel.list_tabs_id_mapping()
-#    panel.list_names_id_mapping()
+    if args.list_tabs_id_mapping:
+        panel.list_tabs_id_mapping()
+
+    if args.list_names_id_mapping:
+        panel.list_names_id_mapping()
+
+    if args.list_tab_names_mapping:
+        panel.list_tab_names_mapping()
 
     if args.get_current:
         circuit_list = panel.list_circuits()
