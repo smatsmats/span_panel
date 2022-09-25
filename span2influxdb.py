@@ -128,8 +128,8 @@ def main():
                         default=False,
                         required=False,
                         help='get current conditions')
-    parser.add_argument('--list_tab_names_mapping',
-                        dest='list_tab_names_mapping',
+    parser.add_argument('--list_tabs_name_mapping',
+                        dest='list_tabs_name_mapping',
                         action='store_true',
                         default=False,
                         required=False,
@@ -175,8 +175,8 @@ def main():
     if args.list_names_id_mapping:
         panel.list_names_id_mapping()
 
-    if args.list_tab_names_mapping:
-        panel.list_tab_names_mapping()
+    if args.list_tabs_name_mapping:
+        panel.list_tabs_name_mapping()
 
     if args.dump_circuits:
         c = panel.get_circuits()
