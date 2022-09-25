@@ -98,8 +98,20 @@ def main():
                         default=False,
                         required=False,
                         help='get current conditions')
+    parser.add_argument('--dump_circuits',
+                        dest='dump_circuits',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current conditions')
     parser.add_argument('--do_panel',
                         dest='do_panel',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current conditions')
+    parser.add_argument('--dump_panel',
+                        dest='dump_panel',
                         action='store_true',
                         default=False,
                         required=False,
@@ -166,6 +178,14 @@ def main():
     if args.list_tab_names_mapping:
         panel.list_tab_names_mapping()
 
+    if args.dump_circuits:
+        c = panel.get_circuits()
+        pp.pprint(c)
+
+    if args.dump_panel:
+        p = panel.get_panel()
+        pp.pprint(p)
+
     if args.get_current:
         circuit_list = panel.list_circuits()
         for circuit_id in circuit_list:
@@ -177,7 +197,7 @@ def main():
 
             # try twice?
             if circuit is None:
-                time.sleep(5)
+                time.sleep(45)
                 circuit = panel.get_circuits(circuitid=circuit_id)
                 if circuit is None:
                     print("error from getting circuits, bailing")
@@ -227,12 +247,29 @@ def main():
 # is_never_backup False
 
             try:
+                tabs = ','.join(str(c) for c in circuit['tabs'])
+                tabs_word = "tabs-{}".format(tabs)
                 json_body = [
                     {
                         "measurement": circuit['name'],
                         "tags": {
                             "circuit_name": circuit['name'],
                             "circuit_id": circuit['id'],
+                            "tabs": tabs,
+                        },
+                        # we really should use the time from the call, but whatever
+                        # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
+                        "time": datetime.utcnow().isoformat(),
+                        "fields": data2push
+                        }
+                ]
+                json_body_tabs = [
+                    {
+                        "measurement": tabs_word,
+                        "tags": {
+                            "circuit_name": circuit['name'],
+                            "circuit_id": circuit['id'],
+                            "tabs": tabs,
                         },
                         # we really should use the time from the call, but whatever
                         # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
@@ -247,6 +284,9 @@ def main():
                 logger.debug(pp.pformat(json_body))
                 logger.debug("Point Json:")
                 ic.write_points(json_body)
+                logger.debug(pp.pformat(json_body_tabs))
+                logger.debug("Point Json:")
+                ic.write_points(json_body_tabs)
 
     if args.do_panel:
         # read panel
