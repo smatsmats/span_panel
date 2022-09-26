@@ -77,7 +77,25 @@ def make_request(method, url, payload=None):
     return response
 
 
+def push_data(measurement, data, tags = {}):
+        json_body = [
+            {
+                "measurement": measurement,
+                "tags": tags,
+                # we really should use the time from the call, but whatever
+                # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
+                "time": datetime.utcnow().isoformat(),
+                "fields": data
+            }
+        ]
+        logger.debug(pp.pformat(json_body))
+        logger.debug("Point Json:")
+        ic.write_points(json_body)
+
 def main():
+    global logger
+    global ic
+
     parser = argparse.ArgumentParser(description='populatte influx with span panel data')
 
 #    parser.add_argument('--query',
@@ -246,47 +264,13 @@ def main():
 # is_sheddable False
 # is_never_backup False
 
-            try:
-                tabs = ','.join(str(c) for c in circuit['tabs'])
-                tabs_word = "tabs-{}".format(tabs)
-                json_body = [
-                    {
-                        "measurement": circuit['name'],
-                        "tags": {
-                            "circuit_name": circuit['name'],
-                            "circuit_id": circuit['id'],
-                            "tabs": tabs,
-                        },
-                        # we really should use the time from the call, but whatever
-                        # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
-                        "time": datetime.utcnow().isoformat(),
-                        "fields": data2push
-                        }
-                ]
-                json_body_tabs = [
-                    {
-                        "measurement": tabs_word,
-                        "tags": {
-                            "circuit_name": circuit['name'],
-                            "circuit_id": circuit['id'],
-                            "tabs": tabs,
-                        },
-                        # we really should use the time from the call, but whatever
-                        # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
-                        "time": datetime.utcnow().isoformat(),
-                        "fields": data2push
-                        }
-                ]
-            except KeyError:
-                print("not everything is in the circuit definition")
-                pp.pprint(circuit)
-            else:
-                logger.debug(pp.pformat(json_body))
-                logger.debug("Point Json:")
-                ic.write_points(json_body)
-                logger.debug(pp.pformat(json_body_tabs))
-                logger.debug("Point Json:")
-                ic.write_points(json_body_tabs)
+            tabs = ','.join(str(c) for c in circuit['tabs'])
+            tabs_word = 'tabs-' + tabs
+            tags = {"circuit_name": circuit['name'],
+                    "circuit_id": circuit['id'],
+                    "tabs": tabs}
+            push_data(circuit['name'], data2push, tags)
+            push_data(tabs_word, data2push, tags)
 
     if args.do_panel:
         # read panel
@@ -294,12 +278,33 @@ def main():
         panel_dict = panel.get_panel()
         for panelarg in panel_dict:
 
-            # for now skip branches
-            if panelarg == 'branches':
-                continue
             value = panel_dict[panelarg]
+            measurement = 'panel'
 
-            if panelarg == 'feedthroughEnergy' or panelarg == 'mainMeterEnergy':
+            # branches
+            if panelarg == 'branches':
+                for branch in panel_dict['branches']:
+                    branchdata = {}
+#                    print("branch")
+#                    pp.pprint(branch)
+                    for brancharg in branch:
+#                        print(brancharg, branch[brancharg])
+                        value = branch[brancharg]
+                        if brancharg == 'relayState':
+                            brancharg = 'relayState_bool'
+                            if branch['relayState'] == 'CLOSED':
+                                value = True
+                            else:
+                                value = False
+                        branchdata[brancharg] = value
+                    measurement = 'branch-' + str(branch['id'])
+                    push_data(measurement, branchdata, {})
+# {   'exportedActiveEnergyWh': 314.5014953613281,
+#     'id': 32,
+#     'importedActiveEnergyWh': 283336.21875,
+#     'instantPowerW': 2359.495849609375,
+#     'relayState': 'CLOSED'}
+            elif panelarg == 'feedthroughEnergy' or panelarg == 'mainMeterEnergy':
                 panelarg_save = panelarg
                 for conpro in panel_dict[panelarg_save]:
                     value = panel_dict[panelarg_save][conpro]
@@ -332,22 +337,8 @@ def main():
 
             data2push[panelarg] = value
 
-        json_body = [
-            {
-                "measurement": 'panel',
-                "tags": {
-                    # "circuit_name": circuit['name'],
-                    # "circuit_id": circuit['id'],
-                },
-                # we really should use the time from the call, but whatever
-                # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
-                "time": datetime.utcnow().isoformat(),
-                "fields": data2push
-            }
-        ]
-        logger.debug(pp.pformat(json_body))
-        logger.debug("Point Json:")
-        ic.write_points(json_body)
+        push_data(measurement, data2push, {})
+
 
 
 if __name__ == "__main__":
