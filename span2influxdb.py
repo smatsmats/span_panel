@@ -251,8 +251,8 @@ def main():
                             else:
                                 value = False
                         branchdata[brancharg] = value
-                    measurement = 'branch-' + str(branch['id'])
-                    push_data(measurement, branchdata, {})
+                    b_measurement = 'branch-' + str(branch['id'])
+                    push_data(b_measurement, branchdata, {})
 # {   'exportedActiveEnergyWh': 314.5014953613281,
 #     'id': 32,
 #     'importedActiveEnergyWh': 283336.21875,
