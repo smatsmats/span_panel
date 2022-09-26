@@ -31,52 +31,6 @@ relay_state_map = {'CLOSED': 1.0,
 calls = 0
 
 
-def make_request(method, url, payload=None):
-    global dry_run
-    global session
-    global calls
-
-#    token_string = "Bearer " + acct_info[account]['token']
-#    headers = {'authorization': token_string,
-#               'content-type': "application/json"}
-    headers = {}
-
-    if verbose:
-        print("method", method, "url", url,
-              "headers", headers, "payload", payload)
-
-    response = None
-    c = 0
-    max = 10
-    while response is None and c < max:
-        try:
-            response = session.request(method=method,
-                                       url=url,
-                                       headers=headers,
-                                       data=json.dumps(payload))
-            calls = calls + 1
-
-            # If the response was successful, no Exception will be raised
-            response.raise_for_status()
-        except HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')
-#            print(f'text: {response.text}')
-            if response.status_code == 401:
-                sys.exit()
-        except Exception as err:
-            print(f'Other error occurred: {err}')
-        else:
-            if verbose:
-                print('Success!')
-        if response is None:
-            c = c + 1
-            wait = c * 20
-            print("timed out, going to wait %d second and try again" % (wait))
-            time.sleep(wait)
-
-    return response
-
-
 def push_data(measurement, data, tags = {}):
         json_body = [
             {
