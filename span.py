@@ -163,16 +163,11 @@ class Panel:
         p = self.get_panel()
         # first populate brances to new dickt
         for branch in p['branches']:
-            pp.pprint(branch['id'])
             b_dict[branch['id']] = branch
         keys_to_pop = []
         for branchid in b_dict:
-            print(branchid)
             for pair in self.tab_pairs:
                 if branchid in pair:
-                    print("PAIR")
-                    print(pair[0])
-                    print(pair[1])
                     a = b_dict[int(pair[0])]
                     b = b_dict[int(pair[1])]
                     combined = self.combine_branches(a, b)
@@ -180,7 +175,6 @@ class Panel:
                     keys_to_pop.append(pair[1])
         ukeys_to_pop = list(set(keys_to_pop))
         for k in ukeys_to_pop:
-            print("will pop", k)
             b_dict.pop(k)
         return(b_dict)
 
@@ -314,15 +308,16 @@ def main():
 #    pp.pprint(c)
 #    juice = panel.get_instantw(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(juice)
-#    juice = panel.get_consumedenergywh(circuitid='5585e4754180409a8222f69b61142469')
+#    juice =
+# panel.get_consumedenergywh(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(juice)
 #    nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(nom)
     tp = panel.get_tab_pairs()
-    pp.pprint(tp)
+#    pp.pprint(tp)
     br = panel.get_branches()
-    pp.pprint(br)
-#    brc = panel.get_branches_combo()
+#    pp.pprint(br)
+    brc = panel.get_branches_combo()
 #    pp.pprint(brc)
 
 

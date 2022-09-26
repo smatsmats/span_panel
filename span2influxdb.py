@@ -31,20 +31,21 @@ relay_state_map = {'CLOSED': 1.0,
 calls = 0
 
 
-def push_data(measurement, data, tags = {}):
-        json_body = [
-            {
-                "measurement": measurement,
-                "tags": tags,
-                # we really should use the time from the call, but whatever
-                # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
-                "time": datetime.utcnow().isoformat(),
-                "fields": data
-            }
-        ]
-        logger.debug(pp.pformat(json_body))
-        logger.debug("Point Json:")
-        ic.write_points(json_body)
+def push_data(measurement, data, tags={}):
+    json_body = [
+        {
+            "measurement": measurement,
+            "tags": tags,
+            # we really should use the time from the call, but whatever
+            # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
+            "time": datetime.utcnow().isoformat(),
+            "fields": data
+        }
+    ]
+    logger.debug(pp.pformat(json_body))
+    logger.debug("Point Json:")
+    ic.write_points(json_body)
+
 
 def main():
     global logger
@@ -239,10 +240,7 @@ def main():
             if panelarg == 'branches':
                 for branch in panel_dict['branches']:
                     branchdata = {}
-#                    print("branch")
-#                    pp.pprint(branch)
                     for brancharg in branch:
-#                        print(brancharg, branch[brancharg])
                         value = branch[brancharg]
                         if brancharg == 'relayState':
                             brancharg = 'relayState_bool'
@@ -292,7 +290,6 @@ def main():
             data2push[panelarg] = value
 
         push_data(measurement, data2push, {})
-
 
 
 if __name__ == "__main__":
