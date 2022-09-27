@@ -166,6 +166,8 @@ class Panel:
             b_dict[branch['id']] = branch
         keys_to_pop = []
         for branchid in b_dict:
+            # dupe id into ids for non-combined branches
+            b_dict[branchid]['ids'] = [branchid]
             for pair in self.tab_pairs:
                 if branchid in pair:
                     a = b_dict[int(pair[0])]
@@ -294,8 +296,8 @@ def main():
 #    pp.pprint(on_grid)
 #    juice = panel.panel_instantgridpowerw()
 #    print(juice)
-    c = panel.get_circuits()
-    pp.pprint(c)
+#    c = panel.get_circuits()
+#    pp.pprint(c)
 #    c = panel.get_circuits(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(c)
 #    panel.list_tabs_id_mapping()
@@ -318,7 +320,7 @@ def main():
     br = panel.get_branches()
 #    pp.pprint(br)
     brc = panel.get_branches_combo()
-#    pp.pprint(brc)
+    pp.pprint(brc)
 
 
 if __name__ == "__main__":

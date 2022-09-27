@@ -89,6 +89,18 @@ def main():
                         default=False,
                         required=False,
                         help='get current conditions')
+    parser.add_argument('--do_branches',
+                        dest='do_branches',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current branch conditions')
+    parser.add_argument('--dump_branches',
+                        dest='dump_branches',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current conditions')
     parser.add_argument('--list_tabs_id_mapping',
                         dest='list_tabs_id_mapping',
                         action='store_true',
@@ -158,6 +170,10 @@ def main():
     if args.dump_panel:
         p = panel.get_panel()
         pp.pprint(p)
+
+    if args.dump_branches:
+        b = panel.get_branches_combo()
+        pp.pprint(b)
 
     if args.get_current:
         circuit_list = panel.list_circuits()
@@ -290,6 +306,54 @@ def main():
             data2push[panelarg] = value
 
         push_data(measurement, data2push, {})
+
+    if args.do_branches:
+        # read panel combo
+        branches = panel.get_branches_combo()
+
+        for branchid in branches:
+            branch = branches[branchid]
+#            print("branch")
+#            pp.pprint(branch)
+            if branch['relayState'] == 'CLOSED':
+                branch['relayState_bool'] = True
+            else:
+                branch['relayState_bool'] = False
+            id_str = ','.join(str(c) for c in branch['ids'])
+            measurement = 'branch-' + id_str
+            tags = {'ids': id_str}
+            branch.pop('ids', None)
+            branch.pop('relayState', None)
+#            print("measurement:", measurement)
+#            print("data:", branch)
+            push_data(measurement, branch, tags)
+
+#            value = panel_dict[panelarg]
+#            branchdata = {}
+#            for brancharg in branch:
+#                value = branch[brancharg]
+#                if brancharg == 'relayState':
+#                    brancharg = 'relayState_bool'
+#                    if branch['relayState'] == 'CLOSED':
+#                        value = True
+#                    else:
+#                        value = False
+#                branchdata[brancharg] = value
+#            b_measurement = 'branch-' + str(branch['id'])
+
+# normal
+# {   'exportedActiveEnergyWh': 314.5014953613281,
+#     'id': 32,
+#     'importedActiveEnergyWh': 283336.21875,
+#     'instantPowerW': 2359.495849609375,
+#     'relayState': 'CLOSED'}
+# from branches_combo
+#   30: {   'exportedActiveEnergyWh': 1917.3850708007812,
+#            'id': 30,
+#            'ids': [30, 32],
+#            'importedActiveEnergyWh': 917139.03125,
+#            'instantPowerW': -9.544904947280884,
+#            'relayState': 'CLOSED'}}
 
 
 if __name__ == "__main__":
