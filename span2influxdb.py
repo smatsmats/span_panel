@@ -315,31 +315,26 @@ def main():
             branch = branches[branchid]
 #            print("branch")
 #            pp.pprint(branch)
+
+            # mess around with some values
+            branch['instantPowerW'] = branch['instantPowerW'] * -1
             if branch['relayState'] == 'CLOSED':
                 branch['relayState_bool'] = True
             else:
                 branch['relayState_bool'] = False
+
+            # create stuff for tags and measurements
             id_str = ','.join(str(c) for c in branch['ids'])
             measurement = 'branch-' + id_str
             tags = {'ids': id_str}
+
+            # clean out some fields that will break influx
             branch.pop('ids', None)
             branch.pop('relayState', None)
+
 #            print("measurement:", measurement)
 #            print("data:", branch)
             push_data(measurement, branch, tags)
-
-#            value = panel_dict[panelarg]
-#            branchdata = {}
-#            for brancharg in branch:
-#                value = branch[brancharg]
-#                if brancharg == 'relayState':
-#                    brancharg = 'relayState_bool'
-#                    if branch['relayState'] == 'CLOSED':
-#                        value = True
-#                    else:
-#                        value = False
-#                branchdata[brancharg] = value
-#            b_measurement = 'branch-' + str(branch['id'])
 
 # normal
 # {   'exportedActiveEnergyWh': 314.5014953613281,
