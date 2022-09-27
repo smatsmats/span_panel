@@ -172,7 +172,10 @@ class Panel:
                 if branchid in pair:
                     a = b_dict[int(pair[0])]
                     b = b_dict[int(pair[1])]
+                    if 'combined' in a.keys() or 'combined' in b.keys():
+                        continue
                     combined = self.combine_branches(a, b)
+                    combined['combined'] = True
                     b_dict[pair[0]] = combined
                     keys_to_pop.append(pair[1])
         ukeys_to_pop = list(set(keys_to_pop))
@@ -318,7 +321,7 @@ def main():
     tp = panel.get_tab_pairs()
 #    pp.pprint(tp)
     br = panel.get_branches()
-#    pp.pprint(br)
+    pp.pprint(br)
     brc = panel.get_branches_combo()
     pp.pprint(brc)
 
