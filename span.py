@@ -288,9 +288,9 @@ class Panel:
 
 
 def main():
-    panel = Panel(host='10.141.39.34', extra_tab_pairs=[[30, 32]])
-    s = panel.get_status()
-    pp.pprint(s)
+#    panel = Panel(host='x.x.x.x', extra_tab_pairs=[[30, 32]])
+#    s = panel.get_status()
+#    pp.pprint(s)
 #    p = panel.get_panel()
 #    pp.pprint(p)
 #    pf = flatten_json(p)
@@ -318,12 +318,12 @@ def main():
 #    pp.pprint(juice)
 #    nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
 #    pp.pprint(nom)
-    tp = panel.get_tab_pairs()
+#    tp = panel.get_tab_pairs()
 #    pp.pprint(tp)
-    br = panel.get_branches()
-    pp.pprint(br)
-    brc = panel.get_branches_combo()
-    pp.pprint(brc)
+#    br = panel.get_branches()
+#    pp.pprint(br)
+#    brc = panel.get_branches_combo()
+#    pp.pprint(brc)
 
 
 if __name__ == "__main__":
