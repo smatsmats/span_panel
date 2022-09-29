@@ -288,6 +288,7 @@ class Panel:
 
 
 def main():
+    pass
 #    panel = Panel(host='x.x.x.x', extra_tab_pairs=[[30, 32]])
 #    s = panel.get_status()
 #    pp.pprint(s)
