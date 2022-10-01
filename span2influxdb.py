@@ -52,13 +52,6 @@ def main():
     global ic
 
     parser = argparse.ArgumentParser(description='populatte influx with span panel data')
-
-#    parser.add_argument('--query',
-#                        dest='query',
-#                        action='store_true',
-#                        default=False,
-#                        required=False,
-#                        help='query')
 #    parser.add_argument('--push2influxdb',
 #                        dest='push2infoxdb',
 #                        action='store_true',
@@ -70,7 +63,13 @@ def main():
                         action='store_true',
                         default=False,
                         required=False,
-                        help='get current conditions')
+                        help='get all circuits, branches, branches combined, and panel')
+    parser.add_argument('--do_circuits',
+                        dest='do_circuits',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get all circuits')
     parser.add_argument('--dump_circuits',
                         dest='dump_circuits',
                         action='store_true',
@@ -119,6 +118,25 @@ def main():
                         default=False,
                         required=False,
                         help='get current conditions')
+    parser.add_argument('-c', '--get_circuit',
+                        dest='get_circuit',
+                        nargs='+',
+                        type=int,
+                        default=None,
+                        required=False,
+                        help='get a circuit by tab slot, use both numbers if a dual breaker')
+    parser.add_argument('-b', '--get_branch',
+                        dest='get_branch',
+                        type=int,
+                        default=None,
+                        required=False,
+                        help='get a branch by tab slot, only returns singles or halves of dual breakers')
+    parser.add_argument('-bc', '--get_branch_combo',
+                        dest='get_branch_combo',
+                        type=int,
+                        default=None,
+                        required=False,
+                        help='get a branch by tab slot, use first tab slow for dual breakers')
     parser.add_argument('--config_file',
                         dest='config_file',
                         default='config.yml',
@@ -147,12 +165,18 @@ def main():
     logger.debug(pp.pformat(config))
     logger.debug(pp.pformat(lconfig))
 
+    # create influx client
     ic = influx.InfluxClient(config)
 
     # this could be a lot quicker if we called panel to get
     # the instantjconsumption for all of the circuits
     panel = span.Panel(host=config['span']['host'],
                        extra_tab_pairs=config['span']['extra_tab_pairs'])
+
+    if args.get_current is True:
+        args.do_circuits = True
+        args.do_panel = True
+        args.do_breakers = True
 
     if args.list_tabs_id_mapping:
         panel.list_tabs_id_mapping()
@@ -175,18 +199,30 @@ def main():
         b = panel.get_branches_combo()
         pp.pprint(b)
 
-    if args.get_current:
+    if args.get_circuit is not None:
+        circuits = panel.get_circuits()
+        for circuit in circuits['circuits']:
+            if circuits['circuits'][circuit]['tabs'] == args.get_circuit:
+                pp.pprint(circuits['circuits'][circuit])
+
+    if args.get_branch is not None:
+        panel_dict = panel.get_panel()
+        for branch in panel_dict['branches']:
+            if branch['id'] == args.get_branch:
+                pp.pprint(branch)
+
+    if args.get_branch_combo is not None:
+        branches = panel.get_branches_combo()
+        pp.pprint(branches[args.get_branch_combo])
+
+    if args.do_circuits:
         circuit_list = panel.list_circuits()
         for circuit_id in circuit_list:
-            # print(circuit_id)
-            # instantw = panel.get_instantw(circuitid='5585e4754180409a8222f69b61142469')
-            # consumedenergywh = panel.get_consumedenergywh(circuitid='5585e4754180409a8222f69b61142469')
-            # nom = panel.get_name(circuitid='5585e4754180409a8222f69b61142469')
             circuit = panel.get_circuits(circuitid=circuit_id)
 
             # try twice?
             if circuit is None:
-                time.sleep(45)
+                time.sleep(15)
                 circuit = panel.get_circuits(circuitid=circuit_id)
                 if circuit is None:
                     print("error from getting circuits, bailing")
