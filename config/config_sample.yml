@@ -3,6 +3,8 @@ verbose: False
 
 span:
   host: <my panel address>
+  extra_tab_pairs:
+    - [30, 32]
 
 influxdb:
   username: 'usernamehere'

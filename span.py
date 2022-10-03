@@ -93,7 +93,7 @@ class Panel:
             for pair in self.extra_tab_pairs:
                 self.tab_pairs.append(pair)
 
-    def get_status(self):
+    def get_status(self, flatten=False):
         method = 'GET'
         url_stub = 'status'
         url = 'http://{}/{}/{}'.format(self.host, self.api_version, url_stub)
@@ -110,7 +110,11 @@ class Panel:
         if verbose:
             pp.pprint(r.json())
 
-        return(r.json())
+        s = r.json()
+        if flatten:
+            return(flatten_json(s))
+        else:
+            return(s)
 
     def get_panel(self):
         method = 'GET'

@@ -64,6 +64,12 @@ def main():
                         default=False,
                         required=False,
                         help='get all circuits, branches, branches combined, and panel')
+    parser.add_argument('--do_status',
+                        dest='do_status',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get panel status')
     parser.add_argument('--do_circuits',
                         dest='do_circuits',
                         action='store_true',
@@ -100,6 +106,12 @@ def main():
                         default=False,
                         required=False,
                         help='get current conditions')
+    parser.add_argument('--dump_status',
+                        dest='dump_status',
+                        action='store_true',
+                        default=False,
+                        required=False,
+                        help='get current status')
     parser.add_argument('--list_tabs_id_mapping',
                         dest='list_tabs_id_mapping',
                         action='store_true',
@@ -176,7 +188,8 @@ def main():
     if args.get_current is True:
         args.do_circuits = True
         args.do_panel = True
-        args.do_breakers = True
+        args.do_branches = True
+        args.do_status = True
 
     if args.list_tabs_id_mapping:
         panel.list_tabs_id_mapping()
@@ -198,6 +211,10 @@ def main():
     if args.dump_branches:
         b = panel.get_branches_combo()
         pp.pprint(b)
+
+    if args.dump_status:
+        s = panel.get_status()
+        pp.pprint(s)
 
     if args.get_circuit is not None:
         circuits = panel.get_circuits()
@@ -279,6 +296,10 @@ def main():
             push_data(circuit['name'], data2push, tags)
             push_data(tabs_word, data2push, tags)
 
+    if args.do_status:
+        fs = panel.get_status(flatten=True)
+        push_data('panel_status', fs, tags={})
+
     if args.do_panel:
         # read panel
         data2push = {}
@@ -299,6 +320,8 @@ def main():
                             if branch['relayState'] == 'CLOSED':
                                 value = True
                             else:
+                                # is the main relay state closed.
+                                pp.pprint(panel_dict)
                                 value = False
                         branchdata[brancharg] = value
                     b_measurement = 'branch-' + str(branch['id'])
@@ -349,8 +372,6 @@ def main():
 
         for branchid in branches:
             branch = branches[branchid]
-#            print("branch")
-#            pp.pprint(branch)
 
             # mess around with some values
             branch['instantPowerW'] = branch['instantPowerW'] * -1
@@ -368,8 +389,6 @@ def main():
             branch.pop('ids', None)
             branch.pop('relayState', None)
 
-#            print("measurement:", measurement)
-#            print("data:", branch)
             push_data(measurement, branch, tags)
 
 # normal
