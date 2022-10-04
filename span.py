@@ -265,9 +265,13 @@ class Panel:
     def get_names_id_mapping(self):
         return(self.names_id_mapping)
 
-    def list_tabs_name_mapping(self):
+    # names_first is easier for human to read instead of tab order
+    def list_tabs_name_mapping(self, names_first=False):
         for str_tab in self.tabs_name_mapping:
-            print(str_tab, '--', self.tabs_name_mapping[str_tab])
+            if names_first:
+                print(self.tabs_name_mapping[str_tab], '--', str_tab)
+            else:
+                print(str_tab, '--', self.tabs_name_mapping[str_tab])
 
     def get_tabs_name_mapping(self):
         return(self.tabs_name_mapping)

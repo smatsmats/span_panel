@@ -197,8 +197,10 @@ def main():
     if args.list_names_id_mapping:
         panel.list_names_id_mapping()
 
+    # we report tabs / names mapping in names order
+    # here so it's easier to read
     if args.list_tabs_name_mapping:
-        panel.list_tabs_name_mapping()
+        panel.list_tabs_name_mapping(names_first=True)
 
     if args.dump_circuits:
         c = panel.get_circuits()
@@ -311,26 +313,13 @@ def main():
 
             # branches
             if panelarg == 'branches':
-                for branch in panel_dict['branches']:
-                    branchdata = {}
-                    for brancharg in branch:
-                        value = branch[brancharg]
-                        if brancharg == 'relayState':
-                            brancharg = 'relayState_bool'
-                            if branch['relayState'] == 'CLOSED':
-                                value = True
-                            else:
-                                # is the main relay state closed.
-                                pp.pprint(panel_dict)
-                                value = False
-                        branchdata[brancharg] = value
-                    b_measurement = 'branch-' + str(branch['id'])
-                    push_data(b_measurement, branchdata, {})
-# {   'exportedActiveEnergyWh': 314.5014953613281,
-#     'id': 32,
-#     'importedActiveEnergyWh': 283336.21875,
-#     'instantPowerW': 2359.495849609375,
-#     'relayState': 'CLOSED'}
+                continue
+                # don't do branches as a part of panel
+                # {   'exportedActiveEnergyWh': 314.5014953613281,
+                #     'id': 32,
+                #     'importedActiveEnergyWh': 283336.21875,
+                #     'instantPowerW': 2359.495849609375,
+                #     'relayState': 'CLOSED'}
             elif panelarg == 'feedthroughEnergy' or panelarg == 'mainMeterEnergy':
                 panelarg_save = panelarg
                 for conpro in panel_dict[panelarg_save]:
@@ -341,6 +330,9 @@ def main():
                 if panel_dict[panelarg] == 'CLOSED':
                     value = True
                 else:
+                    # stupid debug
+                    print("stupid debug")
+                    pp.pprint(panel_dict)
                     value = False
                 panelarg = 'mainRelayState_bool'
             elif panelarg == 'currentRunConfig':
