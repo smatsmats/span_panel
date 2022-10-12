@@ -63,7 +63,8 @@ def make_request(method, url, payload=None):
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')
+            # print(f'HTTP error occurred: {http_err}')
+#            raise("whwere are we")
             # print(f'text: {response.text}')
             if response.status_code == 401:
                 sys.exit()
@@ -211,8 +212,8 @@ class Panel:
 
         # see if the return code is 2XX
         if math.trunc(r.status_code / 100) != 2:
-            print(r.status_code)
-            print(r.reason)
+#            print(r.status_code)
+#            print(r.reason)
             return(None)
 
         if verbose and r.status_code != 204:
