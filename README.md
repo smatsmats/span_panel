@@ -9,13 +9,15 @@ What:
 Pulls from a span panel and pushes to a db.  in this case InfluxDB.
 
 Stuff:
-
-circuits - info the circuit, does not include 220v circuit for solar in
-branches - info from branches, does not include the second tab in a doubled branch
-panel - information about the panel and grid status
-status - information about they system and it's status
+<UL>
+<LI>circuits - info the circuit, does not include 220v circuit for solar in
+<LI>branches - info from branches, does not include the second tab in a doubled branch
+<LI>panel - information about the panel and grid status
+<LI>status - information about they system and it's status
+</UL>
 
 TODO:
-
-return capability to use other config files
-finish register new client, it's not working currently
+<UL>
+<LI>return capability to use other config files
+<LI>finish register new client, it's not working currently
+</ul>
