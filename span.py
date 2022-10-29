@@ -7,7 +7,11 @@ import json
 import math
 from requests.exceptions import HTTPError
 
+import myconfig
+import mylogger
+
 pp = pprint.PrettyPrinter(indent=4)
+
 
 session = requests.Session()
 verbose = 0
@@ -39,10 +43,9 @@ def make_request(method, url, payload=None):
     global session
     global calls
 
-    # might need this in the future
-    # token_string = "Bearer " + acct_info[account]['token']
-    # headers = {'authorization': token_string,
-    #            'content-type': "application/json"}
+    token_string = "Bearer " + myconfig.config['span']['auth']['token']
+    headers = {'authorization': token_string,
+               'content-type': "application/json"}
     headers = {}
 
     if verbose:
@@ -84,6 +87,11 @@ def make_request(method, url, payload=None):
 
 class Panel:
     def __init__(self, host, extra_tab_pairs=None):
+#        self.tabs_id_mapping = {}
+#        self.names_id_mapping = {}
+#        self.tabs_name_mapping = {}
+#        self.circuit_list = []
+#        self.tab_pairs = []
         self.host = host
         self.api_version = 'api/v1'
         self.pop_id_mappings()
@@ -127,6 +135,7 @@ class Panel:
         if math.trunc(r.status_code / 100) != 2:
             print(r.status_code)
             print(r.reason)
+#            return(None)
 
         if verbose and r.status_code != 204:
             pp.pprint(r)

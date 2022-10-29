@@ -24,6 +24,9 @@ class Config:
     def getConfig(self):
         return self.c
 
+#c = Config(directory_base + "/config/" + args.config_file)
+c = Config(directory_base + "/config/" + 'config.yml')
+config = c.getConfig()
 
 def main():
     parser = argparse.ArgumentParser(description='populatte influx with span panel data')

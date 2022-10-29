@@ -19,6 +19,7 @@ from datetime import timedelta
 import influx
 import span
 import myconfig
+import mylogger
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -42,13 +43,12 @@ def push_data(measurement, data, tags={}):
             "fields": data
         }
     ]
-    logger.debug(pp.pformat(json_body))
-    logger.debug("Point Json:")
+    mylogger.logger.debug(pp.pformat(json_body))
+    mylogger.logger.debug("Point Json:")
     ic.write_points(json_body)
 
 
 def main():
-    global logger
     global ic
 
     parser = argparse.ArgumentParser(description='populatte influx with span panel data')
@@ -149,11 +149,11 @@ def main():
                         default=None,
                         required=False,
                         help='get a branch by tab slot, use first tab slow for dual breakers')
-    parser.add_argument('--config_file',
-                        dest='config_file',
-                        default='config.yml',
-                        required=False,
-                        help='name of config file')
+#    parser.add_argument('--config_file',
+#                        dest='config_file',
+#                        default='config.yml',
+#                        required=False,
+#                        help='name of config file')
     parser.add_argument('--verbose',
                         dest='verbose',
                         action='store_true',
@@ -161,29 +161,20 @@ def main():
                         help='should we be really verbose, huh, should we?')
     args = parser.parse_args()
 
-    c = myconfig.Config(directory_base + "/config/" + args.config_file)
-    config = c.getConfig()
+#    c = myconfig.Config(directory_base + "/config/" + args.config_file)
+#    config = c.getConfig()
 
-    verbose = config['verbose']
+    verbose = myconfig.config['verbose']
     if args.verbose:
         verbose = args.verbose
 
-    with open(config['logging']['log_config'], 'rt') as f:
-        lconfig = yaml.load(f.read(), Loader=yaml.SafeLoader)
-    logging.config.dictConfig(lconfig)
-
-    # create logger
-    logger = logging.getLogger(config['logging']['logger_name'])
-    logger.debug(pp.pformat(config))
-    logger.debug(pp.pformat(lconfig))
-
     # create influx client
-    ic = influx.InfluxClient(config)
+    ic = influx.InfluxClient()
 
     # this could be a lot quicker if we called panel to get
     # the instantjconsumption for all of the circuits
-    panel = span.Panel(host=config['span']['host'],
-                       extra_tab_pairs=config['span']['extra_tab_pairs'])
+    panel = span.Panel(host=myconfig.config['span']['host'],
+                       extra_tab_pairs=myconfig.config['span']['extra_tab_pairs'])
 
     if args.get_current is True:
         args.do_circuits = True
@@ -245,7 +236,7 @@ def main():
                 circuit = panel.get_circuits(circuitid=circuit_id)
                 if circuit is None:
                     print("error from getting circuits, bailing")
-                    logger.debug("error from getting circuits, bailing")
+                    mylogger.logger.debug("error from getting circuits, bailing")
                     sys.exit()
 
             # tabs = ' '.join(str(c) for c in circuit['tabs'])
@@ -306,6 +297,9 @@ def main():
         # read panel
         data2push = {}
         panel_dict = panel.get_panel()
+        if panel_dict is None:
+            print("nothing back from panel call")
+            return()
         for panelarg in panel_dict:
 
             value = panel_dict[panelarg]

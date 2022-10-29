@@ -3,6 +3,8 @@ verbose: False
 
 span:
   host: <my panel address>
+  auth:
+    token: 'xxx'
   extra_tab_pairs:
     - [30, 32]
 

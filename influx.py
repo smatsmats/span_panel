@@ -8,20 +8,22 @@ from datetime import timedelta
 import logging
 import logging.config
 
+import myconfig
+import mylogger
+
 pp = pprint.PrettyPrinter(indent=4)
 
 directory_base = "/usr/local/weatherlink2influxdb/"
 
 
 class InfluxClient:
-    def __init__(self, config):
-        self.c = config
-        self.retpol = self.c['influxdb']['retention_policy']
-        self.dbclient = InfluxDBClient(username=self.c['influxdb']['username'],
-                                       password=self.c['influxdb']['password'],
-                                       host=self.c['influxdb']['host'],
-                                       port=self.c['influxdb']['port'])
-        self.dbclient.switch_database(self.c['influxdb']['db_name'])
+    def __init__(self):
+        self.retpol = myconfig.config['influxdb']['retention_policy']
+        self.dbclient = InfluxDBClient(username=myconfig.config['influxdb']['username'],
+                                       password=myconfig.config['influxdb']['password'],
+                                       host=myconfig.config['influxdb']['host'],
+                                       port=myconfig.config['influxdb']['port'])
+        self.dbclient.switch_database(myconfig.config['influxdb']['db_name'])
 
 # qresults = dbclient.query('SELECT "temp_in" FROM "sc6_wx"."autogen"."289367" WHERE time > now() - 4d')
 #                            SELECT "time_in" FROM "sc6_wx_test"."autogen"."289367" WHERE time > now() - 4d
@@ -30,9 +32,9 @@ class InfluxClient:
         if whererange is None:
             whererange = "time > now() - 4d"
         query = "SELECT {} FROM \"{}\".\"{}\".\"{}\" WHERE {}".format(
-            field, self.c['influxdb']['db_name'], self.retpol,
+            field, myconfig.config['influxdb']['db_name'], self.retpol,
             measure, whererange)
-        logger.debug(query)
+        mylogger.logger.debug(query)
         print(query)
         qresults = self.dbclient.query(query)
         pp.pprint(qresults)
@@ -68,15 +70,6 @@ def main():
     verbose = config['verbose']
     if args.verbose:
         verbose = args.verbose
-
-    with open(config['logging']['log_config'], 'rt') as f:
-        lconfig = yaml.load(f.read(), Loader=yaml.SafeLoader)
-    logging.config.dictConfig(lconfig)
-
-    # create logger
-    logger = logging.getLogger('weatherlink2influxdb')
-    logger.debug(pp.pformat(config))
-    logger.debug(pp.pformat(lconfig))
 
     ic = InfluxClient(config)
 
