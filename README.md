@@ -1,6 +1,9 @@
 # span_panel
 my span panel
 
+Uses information from:
+https://gist.github.com/hyun007/c689fbed10424b558f140c54851659e3
+
 What:
 
 Pulls from a span panel and pushes to a db.  in this case InfluxDB.
@@ -15,3 +18,4 @@ status - information about they system and it's status
 TODO:
 
 return capability to use other config files
+finish register new client, it's not working currently

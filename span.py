@@ -45,12 +45,13 @@ def make_request(method, url, payload=None):
 
     token_string = "Bearer " + myconfig.config['span']['auth']['token']
     headers = {'authorization': token_string,
+               'accept': "application/json",
                'content-type': "application/json"}
-    headers = {}
 
+#    mylogger.logger.debug("payload {}".format(json.dumps(payload)))
     if verbose:
-        print("method", method, "url", url,
-              "headers", headers, "payload", payload)
+        pp.pprint("method", method, "url", url,
+                  "headers", headers, "payload", payload)
 
     response = None
     c = 0
@@ -304,10 +305,54 @@ class Panel:
     def get_tab_pairs(self):
         return(self.tab_pairs)
 
+    def get_clients(self, client=None):
+        method = 'GET'
+        url_stub = 'auth/clients'
+        url = 'http://{}/{}/{}'.format(self.host, self.api_version, url_stub)
+        if client is not None:
+            url = url + '/' + client
+        r = make_request(method, url, payload=None)
+
+        # see if the return code is 2XX
+        if math.trunc(r.status_code / 100) != 2:
+            print(r.status_code)
+            print(r.reason)
+
+        if verbose and r.status_code != 204:
+            pp.pprint(r)
+
+        if verbose:
+            pp.pprint(r.json())
+
+        s = r.json()
+        return(s)
+
+    def add_clients(self, user, desc):
+        method = 'POST'
+        url_stub = 'auth/clients'
+        data = { "name": user, "description": desc }
+        url = 'http://{}/{}/{}'.format(self.host, self.api_version, url_stub)
+        r = make_request(method, url, payload=data)
+
+        # see if the return code is 2XX
+        if math.trunc(r.status_code / 100) != 2:
+            print(r.status_code)
+            print(r.reason)
+
+        if verbose and r.status_code != 204:
+            pp.pprint(r)
+
+        if verbose:
+            pp.pprint(r.json())
+
+        s = r.json()
+        return(s)
+
+
 
 def main():
-    pass
-#    panel = Panel(host='x.x.x.x', extra_tab_pairs=[[30, 32]])
+    host = myconfig.config['span']['host'] 
+    panel = Panel(host=host, extra_tab_pairs=[[30, 32]])
 #    s = panel.get_status()
 #    pp.pprint(s)
 #    p = panel.get_panel()
@@ -343,6 +388,14 @@ def main():
 #    pp.pprint(br)
 #    brc = panel.get_branches_combo()
 #    pp.pprint(brc)
+    clients = panel.get_clients()
+    pp.pprint(clients)
+    client = panel.add_clients('bib_api_user', 'bib api user')
+    pp.pprint(client)
+    clients = panel.get_clients()
+    pp.pprint(clients)
+    clients = panel.get_clients('dashboard')
+    pp.pprint(clients)
 
 
 if __name__ == "__main__":
