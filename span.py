@@ -317,6 +317,7 @@ class Panel:
         if math.trunc(r.status_code / 100) != 2:
             print(r.status_code)
             print(r.reason)
+            return(None)
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
@@ -327,10 +328,10 @@ class Panel:
         s = r.json()
         return(s)
 
-    def add_clients(self, user, desc):
+    def add_clients(self, client, desc):
         method = 'POST'
         url_stub = 'auth/clients'
-        data = { "name": user, "description": desc }
+        data = { "name": client, "description": desc }
         url = 'http://{}/{}/{}'.format(self.host, self.api_version, url_stub)
         r = make_request(method, url, payload=data)
 
@@ -338,6 +339,7 @@ class Panel:
         if math.trunc(r.status_code / 100) != 2:
             print(r.status_code)
             print(r.reason)
+            return(None)
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
@@ -347,6 +349,29 @@ class Panel:
 
         s = r.json()
         return(s)
+
+    def delete_clients(self, client):
+        method = 'DELETE'
+        url_stub = 'auth/clients'
+        url = 'http://{}/{}/{}'.format(self.host, self.api_version, url_stub)
+        url = url + '/' + client
+        r = make_request(method, url, payload=None)
+
+        # see if the return code is 2XX
+        if math.trunc(r.status_code / 100) != 2:
+            print(r.status_code)
+            print(r.reason)
+            return(None)
+
+        if verbose and r.status_code != 204:
+            pp.pprint(r)
+
+        if verbose:
+            pp.pprint(r.json())
+
+        s = r.json()
+        return(s)
+
 
 
 
@@ -393,6 +418,8 @@ def main():
     client = panel.add_clients('bib_api_user', 'bib api user')
     pp.pprint(client)
     clients = panel.get_clients()
+    pp.pprint(clients)
+    clients = panel.get_clients('bongo')
     pp.pprint(clients)
     clients = panel.get_clients('dashboard')
     pp.pprint(clients)
