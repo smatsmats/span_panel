@@ -330,7 +330,7 @@ class Panel:
 
     def add_clients(self, client, desc):
         method = 'POST'
-        url_stub = 'auth/clients'
+        url_stub = 'auth/register'
         data = { "name": client, "description": desc }
         url = 'http://{}/{}/{}'.format(self.host, self.api_version, url_stub)
         r = make_request(method, url, payload=data)
@@ -413,14 +413,23 @@ def main():
 #    pp.pprint(br)
 #    brc = panel.get_branches_combo()
 #    pp.pprint(brc)
+
+    print("get_clients()")
     clients = panel.get_clients()
     pp.pprint(clients)
+
+    print("add_clients()")
     client = panel.add_clients('bib_api_user', 'bib api user')
     pp.pprint(client)
+
+    print("get_clients()")
     clients = panel.get_clients()
     pp.pprint(clients)
-    clients = panel.get_clients('bongo')
+
+    print("get_clients('bib_api_user')")
+    clients = panel.get_clients('bib_api_user')
     pp.pprint(clients)
+    print("get_clients('dashboard')")
     clients = panel.get_clients('dashboard')
     pp.pprint(clients)
 
