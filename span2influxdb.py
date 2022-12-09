@@ -154,6 +154,11 @@ def main():
 #                        default='config.yml',
 #                        required=False,
 #                        help='name of config file')
+    parser.add_argument('--register',
+                        dest='register',
+                        action='store_true',
+                        default=False,
+                        help='register client with panel, requires physical panel access')
     parser.add_argument('--verbose',
                         dest='verbose',
                         action='store_true',
@@ -175,6 +180,16 @@ def main():
     # the instantjconsumption for all of the circuits
     panel = span.Panel(host=myconfig.config['span']['host'],
                        extra_tab_pairs=myconfig.config['span']['extra_tab_pairs'])
+
+    if args.register is True:
+        status = panel.get_status()
+        button_presses = status['system']['remainingAuthUnlockButtonPresses']
+        if button_presses == 0:
+            reg = panel.add_clients(myconfig.config['span']['api_user'], myconfig.config['span']['api_user_desc'])
+            pp.pprint(reg)
+            print('put the token in the config file, because I\'m too lazy to do it :)')
+        else:
+            print('remainingAuthUnlockButtonPresses not equal to zero, press {} more times'.format(button_presses))
 
     if args.get_current is True:
         args.do_circuits = True
