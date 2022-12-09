@@ -68,7 +68,6 @@ def make_request(method, url, payload=None):
             response.raise_for_status()
         except HTTPError as http_err:
             # print(f'HTTP error occurred: {http_err}')
-#            raise("whwere are we")
             # print(f'text: {response.text}')
             if response.status_code == 401:
                 sys.exit()
@@ -88,11 +87,6 @@ def make_request(method, url, payload=None):
 
 class Panel:
     def __init__(self, host, extra_tab_pairs=None):
-#        self.tabs_id_mapping = {}
-#        self.names_id_mapping = {}
-#        self.tabs_name_mapping = {}
-#        self.circuit_list = []
-#        self.tab_pairs = []
         self.host = host
         self.api_version = 'api/v1'
         self.pop_id_mappings()
@@ -222,8 +216,6 @@ class Panel:
 
         # see if the return code is 2XX
         if math.trunc(r.status_code / 100) != 2:
-#            print(r.status_code)
-#            print(r.reason)
             return(None)
 
         if verbose and r.status_code != 204:
@@ -331,7 +323,7 @@ class Panel:
     def add_clients(self, client, desc):
         method = 'POST'
         url_stub = 'auth/register'
-        data = { "name": client, "description": desc }
+        data = {"name": client, "description": desc}
         url = 'http://{}/{}/{}'.format(self.host, self.api_version, url_stub)
         r = make_request(method, url, payload=data)
 
@@ -373,10 +365,8 @@ class Panel:
         return(s)
 
 
-
-
 def main():
-    host = myconfig.config['span']['host'] 
+    host = myconfig.config['span']['host']
     panel = Panel(host=host, extra_tab_pairs=[[30, 32]])
 #    s = panel.get_status()
 #    pp.pprint(s)
