@@ -154,6 +154,11 @@ def main():
 #                        default='config.yml',
 #                        required=False,
 #                        help='name of config file')
+    parser.add_argument('--get_clients',
+                        dest='get_clients',
+                        action='store_true',
+                        default=False,
+                        help='get clients known to panel, requires physical panel access')
     parser.add_argument('--register',
                         dest='register',
                         action='store_true',
@@ -177,9 +182,12 @@ def main():
     ic = influx.InfluxClient()
 
     # this could be a lot quicker if we called panel to get
-    # the instantjconsumption for all of the circuits
+    # the instant consumption for all of the circuits
     panel = span.Panel(host=myconfig.config['span']['host'],
                        extra_tab_pairs=myconfig.config['span']['extra_tab_pairs'])
+
+    if args.get_clients is True:
+        print(panel.get_clients())
 
     if args.register is True:
         status = panel.get_status()

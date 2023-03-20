@@ -31,8 +31,10 @@ logger = logging.getLogger(myconfig.config['logging']['logger_name'])
 logger.debug(pp.pformat(myconfig.config))
 logger.debug(pp.pformat(lconfig))
 
+
 def main():
     print("hi")
+
 
 if __name__ == "__main__":
     main()

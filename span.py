@@ -5,6 +5,7 @@ import pprint
 import time
 import json
 import math
+import sys
 from requests.exceptions import HTTPError
 
 import myconfig
@@ -12,10 +13,8 @@ import mylogger
 
 pp = pprint.PrettyPrinter(indent=4)
 
-
 session = requests.Session()
 verbose = 0
-
 calls = 0
 
 
@@ -89,8 +88,11 @@ class Panel:
     def __init__(self, host, extra_tab_pairs=None):
         self.host = host
         self.api_version = 'api/v1'
+
+    def init_mappings(self):
         self.pop_id_mappings()
         self.extra_tab_pairs = extra_tab_pairs
+
         # the solar stuff is not included in circuts, so we have
         # to add it ourselves
         if self.extra_tab_pairs is not None:
@@ -105,8 +107,11 @@ class Panel:
 
         # see if the return code is 2XX
         if math.trunc(r.status_code / 100) != 2:
-            print(r.status_code)
-            print(r.reason)
+            thing = "Get status"
+            print("{} failed, {}, return code: {}".format(thing,
+                                                          r.reason,
+                                                          r.status_code))
+            sys.exit()
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
@@ -128,9 +133,11 @@ class Panel:
 
         # see if the return code is 2XX
         if math.trunc(r.status_code / 100) != 2:
-            print(r.status_code)
-            print(r.reason)
-#            return(None)
+            thing = "Get panel"
+            print("{} failed, {}, return code: {}".format(thing,
+                                                          r.reason,
+                                                          r.status_code))
+            sys.exit()
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
@@ -216,7 +223,8 @@ class Panel:
 
         # see if the return code is 2XX
         if math.trunc(r.status_code / 100) != 2:
-            return(None)
+            print("Can't get circuits: return code {}".format(r.status_code))
+            sys.exit()
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
@@ -241,6 +249,9 @@ class Panel:
         self.circuit_list = []
         self.tab_pairs = []
         spaces = self.get_circuits()
+        if spaces is None:
+            print("Can't get circuits to get circuit mappings, bailing")
+            sys.exit()
         for space in spaces:
             for circuit in spaces[space]:
                 c = spaces[space][circuit]
@@ -255,21 +266,41 @@ class Panel:
                     self.names_id_mapping[c['name']] = c['id']
 
     def list_tabs_id_mapping(self):
+        try:
+            self.tabs_id_mapping
+        except AttributeError:
+            self.init_mappings()
         for n in sorted(self.tabs_id_mapping.keys()):
             print(n, '--', self.tabs_id_mapping[n])
 
     def get_tabs_id_mapping(self):
+        try:
+            self.tabs_id_mapping
+        except AttributeError:
+            self.init_mappings()
         return(self.tabs_id_mapping)
 
     def list_names_id_mapping(self):
+        try:
+            self.names_id_mapping
+        except AttributeError:
+            self.init_mappings()
         for name in sorted(self.names_id_mapping.keys()):
             print(name, '--', self.names_id_mapping[name])
 
     def get_names_id_mapping(self):
+        try:
+            self.names_id_mapping
+        except AttributeError:
+            self.init_mappings()
         return(self.names_id_mapping)
 
     # names_first is easier for human to read instead of tab order
     def list_tabs_name_mapping(self, names_first=False):
+        try:
+            self.tabs_name_mapping
+        except AttributeError:
+            self.init_mappings()
         for str_tab in self.tabs_name_mapping:
             if names_first:
                 print(self.tabs_name_mapping[str_tab], '--', str_tab)
@@ -277,10 +308,18 @@ class Panel:
                 print(str_tab, '--', self.tabs_name_mapping[str_tab])
 
     def get_tabs_name_mapping(self):
+        try:
+            self.tabs_name_mapping
+        except AttributeError:
+            self.init_mappings()
         return(self.tabs_name_mapping)
 
     def list_circuits(self):
-        return(self.circuit_list)
+        try:
+            return(self.circuit_list)
+        except AttributeError:
+            self.init_mappings()
+            return(self.circuit_list)
 
     def get_instantw(self, circuitid):
         circuit = self.get_circuits(circuitid=circuitid)
@@ -307,9 +346,11 @@ class Panel:
 
         # see if the return code is 2XX
         if math.trunc(r.status_code / 100) != 2:
-            print(r.status_code)
-            print(r.reason)
-            return(None)
+            thing = "Get clients"
+            print("{} failed, {}, return code: {}".format(thing,
+                                                          r.reason,
+                                                          r.status_code))
+            sys.exit()
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
@@ -329,9 +370,11 @@ class Panel:
 
         # see if the return code is 2XX
         if math.trunc(r.status_code / 100) != 2:
-            print(r.status_code)
-            print(r.reason)
-            return(None)
+            thing = "Add clients"
+            print("{} failed, {}, return code: {}".format(thing,
+                                                          r.reason,
+                                                          r.status_code))
+            sys.exit()
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
@@ -351,9 +394,11 @@ class Panel:
 
         # see if the return code is 2XX
         if math.trunc(r.status_code / 100) != 2:
-            print(r.status_code)
-            print(r.reason)
-            return(None)
+            thing = "Delete clients"
+            print("{} failed, {}, return code: {}".format(thing,
+                                                          r.reason,
+                                                          r.status_code))
+            sys.exit()
 
         if verbose and r.status_code != 204:
             pp.pprint(r)
