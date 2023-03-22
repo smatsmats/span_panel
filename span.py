@@ -88,10 +88,10 @@ class Panel:
     def __init__(self, host, extra_tab_pairs=None):
         self.host = host
         self.api_version = 'api/v1'
+        self.extra_tab_pairs = extra_tab_pairs
 
     def init_mappings(self):
         self.pop_id_mappings()
-        self.extra_tab_pairs = extra_tab_pairs
 
         # the solar stuff is not included in circuts, so we have
         # to add it ourselves
