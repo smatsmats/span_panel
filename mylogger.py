@@ -28,8 +28,6 @@ logging.config.dictConfig(lconfig)
 
 # create logger
 logger = logging.getLogger(myconfig.config['logging']['logger_name'])
-logger.debug(pp.pformat(myconfig.config))
-logger.debug(pp.pformat(lconfig))
 
 
 def main():
