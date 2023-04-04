@@ -81,6 +81,11 @@ def make_request(method, url, payload=None):
             print("timed out, going to wait %d second and try again" % (wait))
             time.sleep(wait)
 
+    # did we get anything?
+    if response is None:
+        print("No response")
+        sys.exit()
+
     return response
 
 
