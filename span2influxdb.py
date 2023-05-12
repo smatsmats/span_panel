@@ -346,6 +346,8 @@ def main():
             elif panelarg == 'mainRelayState':
                 if panel_dict[panelarg] == 'CLOSED':
                     value = True
+                elif panel_dict[panelarg] == 'UNKNOWN':
+                    value = True
                 else:
                     # stupid debug
                     print("stupid debug")
