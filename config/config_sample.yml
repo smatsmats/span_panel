@@ -2,7 +2,9 @@
 verbose: False
 
 span:
-  host: <my panel address>
+  host: '<my panel address>'
+  api_user: 'api_user'
+  api_user_desc: 'api_user is a name'
   auth:
     token: 'xxx'
   extra_tab_pairs:
