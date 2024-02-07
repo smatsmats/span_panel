@@ -94,6 +94,9 @@ class Panel:
         self.host = host
         self.api_version = 'api/v1'
         self.extra_tab_pairs = extra_tab_pairs
+        # maybe check if we can actually talk to the panel before
+        # going any further
+        self.init_mappings()
 
     def init_mappings(self):
         self.pop_id_mappings()
