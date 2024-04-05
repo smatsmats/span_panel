@@ -18,22 +18,28 @@ directory_base = "/usr/local/weatherlink2influxdb/"
 
 class InfluxClient:
     def __init__(self):
-        self.retpol = myconfig.config['influxdb']['retention_policy']
-        self.dbclient = InfluxDBClient(username=myconfig.config['influxdb']['username'],
-                                       password=myconfig.config['influxdb']['password'],
-                                       host=myconfig.config['influxdb']['host'],
-                                       port=myconfig.config['influxdb']['port'])
-        self.dbclient.switch_database(myconfig.config['influxdb']['db_name'])
+        self.retpol = myconfig.config["influxdb"]["retention_policy"]
+        self.dbclient = InfluxDBClient(
+            username=myconfig.config["influxdb"]["username"],
+            password=myconfig.config["influxdb"]["password"],
+            host=myconfig.config["influxdb"]["host"],
+            port=myconfig.config["influxdb"]["port"],
+        )
+        self.dbclient.switch_database(myconfig.config["influxdb"]["db_name"])
 
-# qresults = dbclient.query('SELECT "temp_in" FROM "sc6_wx"."autogen"."289367" WHERE time > now() - 4d')
-#                            SELECT "time_in" FROM "sc6_wx_test"."autogen"."289367" WHERE time > now() - 4d
+    # qresults = dbclient.query('SELECT "temp_in" FROM "sc6_wx"."autogen"."289367" WHERE time > now() - 4d')
+    #                            SELECT "time_in" FROM "sc6_wx_test"."autogen"."289367" WHERE time > now() - 4d
     def query(self, field, measure, whererange=None):
 
         if whererange is None:
             whererange = "time > now() - 4d"
-        query = "SELECT {} FROM \"{}\".\"{}\".\"{}\" WHERE {}".format(
-            field, myconfig.config['influxdb']['db_name'], self.retpol,
-            measure, whererange)
+        query = 'SELECT {} FROM "{}"."{}"."{}" WHERE {}'.format(
+            field,
+            myconfig.config["influxdb"]["db_name"],
+            self.retpol,
+            measure,
+            whererange,
+        )
         mylogger.logger.debug(query)
         print(query)
         qresults = self.dbclient.query(query)

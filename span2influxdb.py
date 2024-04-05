@@ -27,8 +27,7 @@ session = requests.Session()
 verbose = 0
 directory_base = "/usr/local/span_panel/"
 
-relay_state_map = {'CLOSED': 1.0,
-                   'OPEN': 0.0}
+relay_state_map = {"CLOSED": 1.0, "OPEN": 0.0}
 calls = 0
 
 
@@ -40,7 +39,7 @@ def push_data(measurement, data, tags={}):
             # we really should use the time from the call, but whatever
             # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
             "time": datetime.utcnow().isoformat(),
-            "fields": data
+            "fields": data,
         }
     ]
     mylogger.logger.debug(pp.pformat(json_body))
@@ -51,130 +50,171 @@ def push_data(measurement, data, tags={}):
 def main():
     global ic
 
-    parser = argparse.ArgumentParser(description='populatte influx with span panel data')
-#    parser.add_argument('--push2influxdb',
-#                        dest='push2infoxdb',
-#                        action='store_true',
-#                        default=False,
-#                        required=False,
-#                        help='push to influxdb')
-    parser.add_argument('--get_current',
-                        dest='get_current',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get all circuits, branches, branches combined, and panel')
-    parser.add_argument('--do_status',
-                        dest='do_status',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get panel status')
-    parser.add_argument('--do_circuits',
-                        dest='do_circuits',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get all circuits')
-    parser.add_argument('--dump_circuits',
-                        dest='dump_circuits',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current conditions')
-    parser.add_argument('--do_panel',
-                        dest='do_panel',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current conditions')
-    parser.add_argument('--dump_panel',
-                        dest='dump_panel',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current conditions')
-    parser.add_argument('--do_branches',
-                        dest='do_branches',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current branch conditions')
-    parser.add_argument('--dump_branches',
-                        dest='dump_branches',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current conditions')
-    parser.add_argument('--dump_status',
-                        dest='dump_status',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current status')
-    parser.add_argument('--list_tabs_id_mapping',
-                        dest='list_tabs_id_mapping',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current conditions')
-    parser.add_argument('--list_names_id_mapping',
-                        dest='list_names_id_mapping',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current conditions')
-    parser.add_argument('--list_tabs_name_mapping',
-                        dest='list_tabs_name_mapping',
-                        action='store_true',
-                        default=False,
-                        required=False,
-                        help='get current conditions')
-    parser.add_argument('-c', '--get_circuit',
-                        dest='get_circuit',
-                        nargs='+',
-                        type=int,
-                        default=None,
-                        required=False,
-                        help='get a circuit by tab slot, use both numbers if a dual breaker')
-    parser.add_argument('-b', '--get_branch',
-                        dest='get_branch',
-                        type=int,
-                        default=None,
-                        required=False,
-                        help='get a branch by tab slot, only returns singles or halves of dual breakers')
-    parser.add_argument('-bc', '--get_branch_combo',
-                        dest='get_branch_combo',
-                        type=int,
-                        default=None,
-                        required=False,
-                        help='get a branch by tab slot, use first tab slow for dual breakers')
-#    parser.add_argument('--config_file',
-#                        dest='config_file',
-#                        default='config.yml',
-#                        required=False,
-#                        help='name of config file')
-    parser.add_argument('--get_clients',
-                        dest='get_clients',
-                        action='store_true',
-                        default=False,
-                        help='get clients known to panel, requires physical panel access')
-    parser.add_argument('--register',
-                        dest='register',
-                        action='store_true',
-                        default=False,
-                        help='register client with panel, requires physical panel access')
-    parser.add_argument('--verbose',
-                        dest='verbose',
-                        action='store_true',
-                        default=False,
-                        help='should we be really verbose, huh, should we?')
+    parser = argparse.ArgumentParser(
+        description="populatte influx with span panel data"
+    )
+    #    parser.add_argument('--push2influxdb',
+    #                        dest='push2infoxdb',
+    #                        action='store_true',
+    #                        default=False,
+    #                        required=False,
+    #                        help='push to influxdb')
+    parser.add_argument(
+        "--get_current",
+        dest="get_current",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get all circuits, branches, branches combined, and panel",
+    )
+    parser.add_argument(
+        "--do_status",
+        dest="do_status",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get panel status",
+    )
+    parser.add_argument(
+        "--do_circuits",
+        dest="do_circuits",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get all circuits",
+    )
+    parser.add_argument(
+        "--dump_circuits",
+        dest="dump_circuits",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current conditions",
+    )
+    parser.add_argument(
+        "--do_panel",
+        dest="do_panel",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current conditions",
+    )
+    parser.add_argument(
+        "--dump_panel",
+        dest="dump_panel",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current conditions",
+    )
+    parser.add_argument(
+        "--do_branches",
+        dest="do_branches",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current branch conditions",
+    )
+    parser.add_argument(
+        "--dump_branches",
+        dest="dump_branches",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current conditions",
+    )
+    parser.add_argument(
+        "--dump_status",
+        dest="dump_status",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current status",
+    )
+    parser.add_argument(
+        "--list_tabs_id_mapping",
+        dest="list_tabs_id_mapping",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current conditions",
+    )
+    parser.add_argument(
+        "--list_names_id_mapping",
+        dest="list_names_id_mapping",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current conditions",
+    )
+    parser.add_argument(
+        "--list_tabs_name_mapping",
+        dest="list_tabs_name_mapping",
+        action="store_true",
+        default=False,
+        required=False,
+        help="get current conditions",
+    )
+    parser.add_argument(
+        "-c",
+        "--get_circuit",
+        dest="get_circuit",
+        nargs="+",
+        type=int,
+        default=None,
+        required=False,
+        help="get a circuit by tab slot, use both numbers if a dual breaker",
+    )
+    parser.add_argument(
+        "-b",
+        "--get_branch",
+        dest="get_branch",
+        type=int,
+        default=None,
+        required=False,
+        help="get a branch by tab slot, only returns singles or halves of dual breakers",
+    )
+    parser.add_argument(
+        "-bc",
+        "--get_branch_combo",
+        dest="get_branch_combo",
+        type=int,
+        default=None,
+        required=False,
+        help="get a branch by tab slot, use first tab slow for dual breakers",
+    )
+    #    parser.add_argument('--config_file',
+    #                        dest='config_file',
+    #                        default='config.yml',
+    #                        required=False,
+    #                        help='name of config file')
+    parser.add_argument(
+        "--get_clients",
+        dest="get_clients",
+        action="store_true",
+        default=False,
+        help="get clients known to panel, requires physical panel access",
+    )
+    parser.add_argument(
+        "--register",
+        dest="register",
+        action="store_true",
+        default=False,
+        help="register client with panel, requires physical panel access",
+    )
+    parser.add_argument(
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        default=False,
+        help="should we be really verbose, huh, should we?",
+    )
     args = parser.parse_args()
 
-#    c = myconfig.Config(directory_base + "/config/" + args.config_file)
-#    config = c.getConfig()
+    #    c = myconfig.Config(directory_base + "/config/" + args.config_file)
+    #    config = c.getConfig()
 
-    verbose = myconfig.config['verbose']
+    verbose = myconfig.config["verbose"]
     if args.verbose:
         verbose = args.verbose
 
@@ -183,21 +223,30 @@ def main():
 
     # this could be a lot quicker if we called panel to get
     # the instant consumption for all of the circuits
-    panel = span.Panel(host=myconfig.config['span']['host'],
-                       extra_tab_pairs=myconfig.config['span']['extra_tab_pairs'])
+    panel = span.Panel(
+        host=myconfig.config["span"]["host"],
+        extra_tab_pairs=myconfig.config["span"]["extra_tab_pairs"],
+    )
 
     if args.get_clients is True:
         print(panel.get_clients())
 
     if args.register is True:
         status = panel.get_status()
-        button_presses = status['system']['remainingAuthUnlockButtonPresses']
+        button_presses = status["system"]["remainingAuthUnlockButtonPresses"]
         if button_presses == 0:
-            reg = panel.add_clients(myconfig.config['span']['api_user'], myconfig.config['span']['api_user_desc'])
+            reg = panel.add_clients(
+                myconfig.config["span"]["api_user"],
+                myconfig.config["span"]["api_user_desc"],
+            )
             pp.pprint(reg)
-            print('put the token in the config file, because I\'m too lazy to do it :)')
+            print("put the token in the config file, because I'm too lazy to do it :)")
         else:
-            print('remainingAuthUnlockButtonPresses not equal to zero, press {} more times'.format(button_presses))
+            print(
+                "remainingAuthUnlockButtonPresses not equal to zero, press {} more times".format(
+                    button_presses
+                )
+            )
 
     if args.get_current is True:
         args.do_circuits = True
@@ -234,14 +283,14 @@ def main():
 
     if args.get_circuit is not None:
         circuits = panel.get_circuits()
-        for circuit in circuits['circuits']:
-            if circuits['circuits'][circuit]['tabs'] == args.get_circuit:
-                pp.pprint(circuits['circuits'][circuit])
+        for circuit in circuits["circuits"]:
+            if circuits["circuits"][circuit]["tabs"] == args.get_circuit:
+                pp.pprint(circuits["circuits"][circuit])
 
     if args.get_branch is not None:
         panel_dict = panel.get_panel()
-        for branch in panel_dict['branches']:
-            if branch['id'] == args.get_branch:
+        for branch in panel_dict["branches"]:
+            if branch["id"] == args.get_branch:
                 pp.pprint(branch)
 
     if args.get_branch_combo is not None:
@@ -266,55 +315,59 @@ def main():
             data2push = {}
             for arg in circuit:
                 value = circuit[arg]
-                if arg in ['id',
-                           'name',
-                           'is_user_controllable',
-                           'priority',
-                           'is_sheddable',
-                           'is_never_backup',
-                           'tabs']:
+                if arg in [
+                    "id",
+                    "name",
+                    "is_user_controllable",
+                    "priority",
+                    "is_sheddable",
+                    "is_never_backup",
+                    "tabs",
+                ]:
                     continue
 
                 # some stupid conversions
-                if arg == 'relayState':
+                if arg == "relayState":
                     value = relay_state_map[value]
-                if arg == 'instantPowerW':
-                    value = - value
+                if arg == "instantPowerW":
+                    value = -value
 
                 data2push[arg] = value
 
                 # add an extra frield for tabs as a string
-                if arg == 'tabs':
-                    arg = 'tabs_str'
-                    value = ','.join(value)
+                if arg == "tabs":
+                    arg = "tabs_str"
+                    value = ",".join(value)
 
                 data2push[arg] = value
 
-# id b74f5a75fe544b07a11a50d6948568e2
-# name Disposal, kitchen outlet, front hall
-# relayState CLOSED
-# instantPowerW 0.0
-# instantPowerUpdateTimeS 1663431256
-# producedEnergyWh 39.83546447753906
-# consumedEnergyWh 50.25605773925781
-# energyAccumUpdateTimeS 1663431250
-# tabs [28]
-# priority NON_ESSENTIAL
-# is_user_controllable True
-# is_sheddable False
-# is_never_backup False
+            # id b74f5a75fe544b07a11a50d6948568e2
+            # name Disposal, kitchen outlet, front hall
+            # relayState CLOSED
+            # instantPowerW 0.0
+            # instantPowerUpdateTimeS 1663431256
+            # producedEnergyWh 39.83546447753906
+            # consumedEnergyWh 50.25605773925781
+            # energyAccumUpdateTimeS 1663431250
+            # tabs [28]
+            # priority NON_ESSENTIAL
+            # is_user_controllable True
+            # is_sheddable False
+            # is_never_backup False
 
-            tabs = ','.join(str(c) for c in circuit['tabs'])
-            tabs_word = 'tabs-' + tabs
-            tags = {"circuit_name": circuit['name'],
-                    "circuit_id": circuit['id'],
-                    "tabs": tabs}
-            push_data(circuit['name'], data2push, tags)
+            tabs = ",".join(str(c) for c in circuit["tabs"])
+            tabs_word = "tabs-" + tabs
+            tags = {
+                "circuit_name": circuit["name"],
+                "circuit_id": circuit["id"],
+                "tabs": tabs,
+            }
+            push_data(circuit["name"], data2push, tags)
             push_data(tabs_word, data2push, tags)
 
     if args.do_status:
         fs = panel.get_status(flatten=True)
-        push_data('panel_status', fs, tags={})
+        push_data("panel_status", fs, tags={})
 
     if args.do_panel:
         # read panel
@@ -322,14 +375,14 @@ def main():
         panel_dict = panel.get_panel()
         if panel_dict is None:
             print("nothing back from panel call")
-            return()
+            return ()
         for panelarg in panel_dict:
 
             value = panel_dict[panelarg]
-            measurement = 'panel'
+            measurement = "panel"
 
             # branches
-            if panelarg == 'branches':
+            if panelarg == "branches":
                 continue
                 # don't do branches as a part of panel
                 # {   'exportedActiveEnergyWh': 314.5014953613281,
@@ -337,41 +390,41 @@ def main():
                 #     'importedActiveEnergyWh': 283336.21875,
                 #     'instantPowerW': 2359.495849609375,
                 #     'relayState': 'CLOSED'}
-            elif panelarg == 'feedthroughEnergy' or panelarg == 'mainMeterEnergy':
+            elif panelarg == "feedthroughEnergy" or panelarg == "mainMeterEnergy":
                 panelarg_save = panelarg
                 for conpro in panel_dict[panelarg_save]:
                     value = panel_dict[panelarg_save][conpro]
-                    panelarg = '{}_{}'.format(panelarg_save, conpro)
+                    panelarg = "{}_{}".format(panelarg_save, conpro)
                     data2push[panelarg] = value
-            elif panelarg == 'mainRelayState':
-                if panel_dict[panelarg] == 'CLOSED':
+            elif panelarg == "mainRelayState":
+                if panel_dict[panelarg] == "CLOSED":
                     value = True
-                elif panel_dict[panelarg] == 'UNKNOWN':
+                elif panel_dict[panelarg] == "UNKNOWN":
                     value = True
                 else:
                     # stupid debug
                     print("stupid debug")
                     pp.pprint(panel_dict)
                     value = False
-                panelarg = 'mainRelayState_bool'
-            elif panelarg == 'currentRunConfig':
-                if panel_dict[panelarg] == 'PANEL_ON_GRID':
+                panelarg = "mainRelayState_bool"
+            elif panelarg == "currentRunConfig":
+                if panel_dict[panelarg] == "PANEL_ON_GRID":
                     value = True
                 else:
                     value = False
-                panelarg = 'currentRunConfig_bool'
-            elif panelarg == 'dsmGridState':
-                if panel_dict[panelarg] == 'DSM_GRID_UP':
+                panelarg = "currentRunConfig_bool"
+            elif panelarg == "dsmGridState":
+                if panel_dict[panelarg] == "DSM_GRID_UP":
                     value = True
                 else:
                     value = False
-                panelarg = 'dsmGridState_bool'
-            elif panelarg == 'dsmState':
-                if panel_dict[panelarg] == 'DSM_ON_GRID':
+                panelarg = "dsmGridState_bool"
+            elif panelarg == "dsmState":
+                if panel_dict[panelarg] == "DSM_ON_GRID":
                     value = True
                 else:
                     value = False
-                panelarg = 'dsmState_bool'
+                panelarg = "dsmState_bool"
 
             data2push[panelarg] = value
 
@@ -385,22 +438,23 @@ def main():
             branch = branches[branchid]
 
             # mess around with some values
-            branch['instantPowerW'] = branch['instantPowerW'] * -1
-            if branch['relayState'] == 'CLOSED':
-                branch['relayState_bool'] = True
+            branch["instantPowerW"] = branch["instantPowerW"] * -1
+            if branch["relayState"] == "CLOSED":
+                branch["relayState_bool"] = True
             else:
-                branch['relayState_bool'] = False
+                branch["relayState_bool"] = False
 
             # create stuff for tags and measurements
-            id_str = ','.join(str(c) for c in branch['ids'])
-            measurement = 'branch-' + id_str
-            tags = {'ids': id_str}
+            id_str = ",".join(str(c) for c in branch["ids"])
+            measurement = "branch-" + id_str
+            tags = {"ids": id_str}
 
             # clean out some fields that will break influx
-            branch.pop('ids', None)
-            branch.pop('relayState', None)
+            branch.pop("ids", None)
+            branch.pop("relayState", None)
 
             push_data(measurement, branch, tags)
+
 
 # normal
 # {   'exportedActiveEnergyWh': 314.5014953613281,

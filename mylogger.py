@@ -22,12 +22,12 @@ session = requests.Session()
 verbose = 0
 directory_base = "/usr/local/span_panel/"
 
-with open(myconfig.config['logging']['log_config'], 'rt') as f:
+with open(myconfig.config["logging"]["log_config"], "rt") as f:
     lconfig = yaml.load(f.read(), Loader=yaml.SafeLoader)
 logging.config.dictConfig(lconfig)
 
 # create logger
-logger = logging.getLogger(myconfig.config['logging']['logger_name'])
+logger = logging.getLogger(myconfig.config["logging"]["logger_name"])
 
 
 def main():
