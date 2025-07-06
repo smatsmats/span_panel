@@ -12,8 +12,7 @@ import logging
 import logging.config
 import argparse
 import yaml
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 # local stuff
 import influx
@@ -38,7 +37,7 @@ def push_data(measurement, data, tags={}):
             "tags": tags,
             # we really should use the time from the call, but whatever
             # "time": datetime.utcfromtimestamp(int(data['ts'])).isoformat(),
-            "time": datetime.utcnow().isoformat(),
+            "time": datetime.now(timezone.utc).isoformat(),
             "fields": data,
         }
     ]
